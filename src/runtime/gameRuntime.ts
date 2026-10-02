@@ -76,6 +76,7 @@ export class GameRuntime {
             });
 
             this.setupResize();
+            this.setupPauseListeners();
 
             // Load assets with progress
             await loadGameAssets((progress) => {
@@ -120,7 +121,6 @@ export class GameRuntime {
         this.input.enable();
 
         this.app.ticker.add(this.gameLoop);
-        this.setupPauseListeners();
 
         this.setState('playing');
         useGameStore.setState({

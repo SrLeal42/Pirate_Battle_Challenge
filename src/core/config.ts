@@ -28,12 +28,12 @@ export const GAME_CONFIG = {
   playerMaxHealth: 100,
   playerMoveSpeed: 150, // px/s
   playerTurnSpeed: Math.PI, // rads/s
-  playerHitboxWidth: 40, // hull only
-  playerHitboxHeight: 80,
+  playerHitboxWidth: 80, // hull only
+  playerHitboxHeight: 40,
 
   // Weapons / Projectiles
-  cooldownFront: 1000, // ms
-  cooldownSide: 2000, // ms
+  cooldownFront: 500, // ms
+  cooldownSide: 1500, // ms
   projectileSpeed: 400, // px/s
   projectileLifeTime: 2000, // ms
   projectileDamage: 25,
@@ -53,6 +53,6 @@ export const GAME_CONFIG = {
   shooterCooldown: 2000,
   shooterAimTolerance: 0.2, // rads
 
-  enemyHitboxWidth: 36,
-  enemyHitboxHeight: 72,
+  enemyHitboxWidth: 72,
+  enemyHitboxHeight: 36,
 };

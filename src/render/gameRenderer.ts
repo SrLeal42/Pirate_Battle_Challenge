@@ -1,10 +1,13 @@
 import {
-    Application, Container, Sprite, Graphics, Text, TextStyle,
+    Application, Container, Sprite, Graphics
 } from 'pixi.js';
-import type { GameState, EnemyState, ProjectileState, TileType } from '../core/types';
+
+import type { GameState } from '../core/types';
 import type { GameEvent } from '../core/types';
-import type { ArenaMap, TileDef } from '../core/arena';
+
+import type { ArenaMap } from '../core/arena';
 import { GAME_CONFIG } from '../core/config';
+import { createOBB } from '../core/geometry';
 import { getTexture } from './assets';
 
 const ROTATION_OFFSET = -Math.PI / 2; // Sprites point down, our 0 = -X
@@ -23,7 +26,7 @@ export class GameRenderer {
 
     private arenaMap: ArenaMap;
     private debugGraphics: Graphics | null = null;
-    private showDebug = false;
+    private showDebug = true;
 
     constructor(app: Application, arenaMap: ArenaMap) {
         this.app = app;
@@ -255,15 +258,30 @@ export class GameRenderer {
             g.stroke({ color: 0xff0000, alpha: 0.5, width: 2 });
         }
 
-        // Player hitbox
+        // Player hitbox (rotated OBB)
         const p = state.player;
-        g.rect(
-            p.position.x - GAME_CONFIG.playerHitboxWidth / 2,
-            p.position.y - GAME_CONFIG.playerHitboxHeight / 2,
-            GAME_CONFIG.playerHitboxWidth,
-            GAME_CONFIG.playerHitboxHeight,
-        );
-        g.stroke({ color: 0x00ff00, alpha: 0.5, width: 1 });
+        if (!p.isDead) {
+            const obb = createOBB(p.position, GAME_CONFIG.playerHitboxWidth, GAME_CONFIG.playerHitboxHeight, p.rotation);
+            const pts = obb.vertices.map(v => [obb.pos.x + v.x, obb.pos.y + v.y]).flat();
+            g.poly(pts);
+            g.stroke({ color: 0x00ff00, alpha: 0.5, width: 1 });
+        }
+
+        // Enemy hitboxes (rotated OBB)
+        for (const enemy of state.enemies) {
+            if (enemy.isDead) continue;
+            const obb = createOBB(enemy.position, GAME_CONFIG.enemyHitboxWidth, GAME_CONFIG.enemyHitboxHeight, enemy.rotation);
+            const pts = obb.vertices.map(v => [obb.pos.x + v.x, obb.pos.y + v.y]).flat();
+            g.poly(pts);
+            g.stroke({ color: 0xffaa00, alpha: 0.5, width: 1 });
+        }
+
+        // Projectile hitboxes (circles)
+        for (const proj of state.projectiles) {
+            g.circle(proj.position.x, proj.position.y, GAME_CONFIG.projectileRadius);
+            g.stroke({ color: 0x00ffff, alpha: 0.5, width: 1 });
+        }
+
     }
 
     destroy(): void {
