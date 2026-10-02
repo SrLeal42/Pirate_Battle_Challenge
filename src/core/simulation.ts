@@ -411,10 +411,9 @@ export class Simulation {
                 const obb = createOBB(enemy.position, this.config.enemyHitboxWidth, this.config.enemyHitboxHeight, enemy.rotation);
                 if (polyVsPoly(pOBB, obb).collided) {
                     s.player.health -= this.config.chaserCollisionDamage;
-                    enemy.health = 0;
-                    enemy.isDead = true;
+                    enemy.health = 0; // Will be processed in processDeathsAndScoring
+                    enemy.killedByCollision = true; // No score for self-destruct
                     this.events.push({ type: 'playerDamaged', amount: this.config.chaserCollisionDamage });
-                    this.events.push({ type: 'shipDestroyed', shipId: enemy.id, isPlayer: false });
                 }
             }
 
@@ -441,11 +440,15 @@ export class Simulation {
             if (!enemy.isDead && enemy.health <= 0) {
                 enemy.isDead = true;
                 enemy.health = 0;
-                s.score += 1;
                 this.events.push({ type: 'shipDestroyed', shipId: enemy.id, isPlayer: false });
-                this.events.push({ type: 'scoreChanged', newScore: s.score });
+                // Only score kills from player projectiles, not chaser self-destruct
+                if (!enemy.killedByCollision) {
+                    s.score += 1;
+                    this.events.push({ type: 'scoreChanged', newScore: s.score });
+                }
             }
         }
+
     }
 
     private cleanup(): void {

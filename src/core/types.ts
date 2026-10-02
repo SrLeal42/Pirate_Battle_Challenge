@@ -35,6 +35,7 @@ export interface EnemyState {
   health: number;
   cooldown: number;
   isDead: boolean;
+  killedByCollision?: boolean; // Chaser self-destruct: no score
 }
 
 export interface ProjectileState {
