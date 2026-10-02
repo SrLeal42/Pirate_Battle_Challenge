@@ -1,8 +1,7 @@
 import type {
     GameState, GameEvent, InputState, PlayerState,
-    EnemyState, EnemyType, Vector2,
+    EnemyState, EnemyType, Vector2, GameConfig
 } from './types';
-import { GAME_CONFIG } from './config';
 import { RNG } from './rng';
 import {
     vAdd, vSub, vScale, vNorm, vLen, vDist,
@@ -39,14 +38,14 @@ export class Simulation {
 
     private arena: ArenaDef;
 
-    private config: typeof GAME_CONFIG;
+    private config: GameConfig;
 
     private session: SessionConfig;
     private spawnTimer: number;
     private nextId = 0;
 
     constructor(
-        config: typeof GAME_CONFIG,
+        config: GameConfig,
         arena: ArenaDef,
         seed: number,
         sessionTimeSec: number,

@@ -1,4 +1,6 @@
-export const GAME_CONFIG = {
+import type { GameConfig } from './types';
+
+export const GAME_CONFIG: GameConfig = {
   // Arena
   arenaWidth: 1280, // 20 tiles 64px
   arenaHeight: 704, // 11 tiles 64px
@@ -55,4 +57,5 @@ export const GAME_CONFIG = {
 
   enemyHitboxWidth: 72,
   enemyHitboxHeight: 36,
-};
+
+} as const;

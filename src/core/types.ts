@@ -71,3 +71,59 @@ export type TileType =
   | 'island_nw' | 'island_n' | 'island_ne'
   | 'island_w' | 'island_center' | 'island_e'
   | 'island_sw' | 'island_s' | 'island_se';
+
+
+export interface GameConfig {
+  // Arena
+  arenaWidth: number;
+  arenaHeight: number;
+  tileSize: number;
+
+  // Game Session
+  defaultSessionTime: number;
+  minSessionTime: number;
+  maxSessionTime: number;
+
+  // Spawns
+  defaultSpawnInterval: number;
+  minSpawnInterval: number;
+  maxSpawnInterval: number;
+  maxAliveEnemies: number;
+  minSpawnDistance: number;
+  spawnEdgeMargin: number;
+  spawnCheckRadius: number;
+  spawnMaxAttempts: number;
+  spawnGracePeriod: number;
+  chaserWeight: number;
+  shooterWeight: number;
+
+  // Player
+  playerMaxHealth: number;
+  playerMoveSpeed: number;
+  playerTurnSpeed: number;
+  playerHitboxWidth: number;
+  playerHitboxHeight: number;
+
+  // Weapons / Projectiles
+  cooldownFront: number;
+  cooldownSide: number;
+  projectileSpeed: number;
+  projectileLifeTime: number;
+  projectileDamage: number;
+  projectileRadius: number;
+  broadsideOffsets: readonly number[];
+
+  // Enemies
+  chaserHealth: number;
+  chaserSpeed: number;
+  chaserTurnSpeed: number;
+  chaserCollisionDamage: number;
+  shooterHealth: number;
+  shooterSpeed: number;
+  shooterTurnSpeed: number;
+  shooterAttackRange: number;
+  shooterCooldown: number;
+  shooterAimTolerance: number;
+  enemyHitboxWidth: number;
+  enemyHitboxHeight: number;
+}
