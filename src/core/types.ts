@@ -1,3 +1,5 @@
+import type { Polygon } from './geometry';
+
 export interface Vector2 {
   x: number;
   y: number;
@@ -24,6 +26,22 @@ export interface PlayerState {
   };
   isDead: boolean;
 }
+
+export interface IslandDef {
+  polygon: Polygon;
+}
+
+export interface ArenaDef {
+  width: number;
+  height: number;
+  islands: IslandDef[];
+}
+
+export interface SessionConfig {
+  sessionTimeMs: number;
+  spawnIntervalMs: number;
+}
+
 
 export type EnemyType = 'chaser' | 'shooter';
 

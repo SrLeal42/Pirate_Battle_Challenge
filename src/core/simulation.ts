@@ -1,30 +1,14 @@
 import type {
     GameState, GameEvent, InputState, PlayerState,
-    EnemyState, EnemyType, Vector2, GameConfig
+    EnemyState, EnemyType, Vector2, GameConfig,
+    ArenaDef, SessionConfig,
 } from './types';
 import { RNG } from './rng';
 import {
     vAdd, vSub, vScale, vNorm, vLen, vDist,
     createOBB, polyVsPoly, circleVsPoly,
-    type Polygon, type Circle,
+    type Circle,
 } from './geometry';
-
-// --- Arena & session types (used by simulation only) ---
-
-export interface IslandDef {
-    polygon: Polygon;
-}
-
-export interface ArenaDef {
-    width: number;
-    height: number;
-    islands: IslandDef[];
-}
-
-export interface SessionConfig {
-    sessionTimeMs: number;
-    spawnIntervalMs: number;
-}
 
 
 // --- Simulation ---

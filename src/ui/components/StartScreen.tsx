@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import styles from './StartScreen.module.css';
 
+import { useGameStore } from '../../stores/gameStore';
+
 interface StartScreenProps {
     onStart: () => void;
 }
@@ -11,6 +13,7 @@ export const StartScreen: React.FC<StartScreenProps> = ({ onStart }) => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (username.trim().length > 0) {
+            useGameStore.setState({ username: username.trim() });
             onStart();
         }
     };

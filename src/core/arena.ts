@@ -1,7 +1,6 @@
-import type { ArenaDef, IslandDef } from './simulation';
 import type { Polygon } from './geometry';
 import { GAME_CONFIG } from './config';
-import type { TileType } from './types';
+import type { TileType, ArenaDef, IslandDef } from './types';
 
 export interface TileDef {
     col: number;
