@@ -147,14 +147,6 @@ export class GameRenderer {
     }
 
     private updateHealthBars(state: Readonly<GameState>): void {
-        // Player health bar
-        this.drawHealthBar(
-            'player',
-            state.player.position.x,
-            state.player.position.y - 50,
-            state.player.health / GAME_CONFIG.playerMaxHealth,
-            50,
-        );
 
         // Enemy health bars
         for (const enemy of state.enemies) {
@@ -170,6 +162,7 @@ export class GameRenderer {
                 40,
             );
         }
+
     }
 
     private drawHealthBar(

@@ -1,0 +1,116 @@
+.overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(15, 23, 42, 0.6);
+    /* Apenas escurece o fundo */
+    animation: fadeIn 0.5s ease-out;
+}
+
+.card {
+    /* Usa a imagem do painel como fundo */
+    background-image: url('/assets/png/default/ui/menu/panel_menu.png');
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    width: 550px;
+    min-height: 650px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 4rem;
+    box-sizing: border-box;
+    gap: 2rem;
+}
+
+.titleImage {
+    width: 110%;
+    margin-top: -120px;
+    /* Puxa o logo um pouco para cima do painel */
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.5));
+}
+
+.inputWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+    text-align: center;
+}
+
+.label {
+    color: #fde047;
+    /* Amarelo ouro para combinar com a madeira */
+    font-size: 1rem;
+    text-transform: uppercase;
+    font-weight: 800;
+    text-shadow: 2px 2px 0px #000;
+}
+
+.input {
+    background-image: url('/assets/png/default/ui/menu/button_secondary_normal.png');
+    background-size: 100% 100%;
+    background-color: transparent;
+    border: none;
+    color: #fff;
+
+    width: 280px;
+    height: 65px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+
+    font-size: 1.25rem;
+    text-align: center;
+    outline: none;
+    font-weight: bold;
+}
+
+
+.input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.button {
+    background-image: url('/assets/png/default/ui/menu/button_primary_normal.png');
+    background-size: 100% 100%;
+    background-color: transparent;
+    border: none;
+    width: 230px;
+    height: 75px;
+    color: white;
+    font-size: 1.25rem;
+    font-weight: 900;
+    cursor: pointer;
+    text-transform: uppercase;
+    text-shadow: 0px 2px 0px rgba(0, 0, 0, 0.5);
+    transition: transform 0.1s;
+}
+
+.button:hover:not(:disabled) {
+    background-image: url('/assets/png/default/ui/menu/button_primary_hover.png');
+}
+
+.button:active:not(:disabled) {
+    background-image: url('/assets/png/default/ui/menu/button_primary_pressed.png');
+    transform: translateY(2px);
+}
+
+.button:disabled {
+    background-image: url('/assets/png/default/ui/menu/button_primary_disabled.png');
+    color: rgba(255, 255, 255, 0.6);
+    cursor: not-allowed;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}

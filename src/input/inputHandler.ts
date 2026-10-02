@@ -26,9 +26,18 @@ export class InputHandler {
     private onKeyDown: (e: KeyboardEvent) => void;
     private onKeyUp: (e: KeyboardEvent) => void;
 
+    public onPauseToggle?: () => void;
+
     constructor() {
         this.onKeyDown = (e: KeyboardEvent) => {
+
+            if (e.code === 'Escape') {
+                if (this.onPauseToggle) this.onPauseToggle();
+                return;
+            }
+
             if (!this.active) return;
+
             const action = KEY_MAP[e.code];
             if (action) {
                 e.preventDefault();

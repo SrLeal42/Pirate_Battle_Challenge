@@ -29,6 +29,14 @@ export class GameRuntime {
         this.container = container;
         this.arenaMap = createDefaultArena();
         this.input = new InputHandler();
+
+        // Conecta o evento discreto do InputHandler com o Runtime
+        this.input.onPauseToggle = () => {
+            const state = useGameStore.getState().runtimeState;
+            if (state === 'playing') this.pause();
+            else if (state === 'paused') this.resume();
+        };
+
         this.disposables.push(() => this.input.destroy());
     }
 
@@ -144,6 +152,17 @@ export class GameRuntime {
         this.renderer = null;
         this.simulation = null;
         this.start();
+    }
+
+    quitToMenu(): void {
+        this.app?.ticker.remove(this.gameLoop);
+        if (this.renderer) {
+            this.renderer.destroy();
+            this.renderer = null;
+        }
+        this.simulation = null;
+
+        this.setState('ready');
     }
 
     // --- Game loop (fixed timestep) ---

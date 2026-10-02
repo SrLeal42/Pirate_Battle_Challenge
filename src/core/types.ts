@@ -33,13 +33,13 @@ export interface EnemyState {
   position: Vector2;
   rotation: number;
   health: number;
-  cooldown: number; // usado pelo shooter
+  cooldown: number;
   isDead: boolean;
 }
 
 export interface ProjectileState {
   id: string;
-  ownerId: string; // 'player' ou id do inimigo
+  ownerId: string;
   position: Vector2;
   velocity: Vector2;
   damage: number;
@@ -47,7 +47,7 @@ export interface ProjectileState {
 }
 
 export interface GameState {
-  timeRemaining: number; // em milissegundos
+  timeRemaining: number;
   score: number;
   player: PlayerState;
   enemies: EnemyState[];
