@@ -36,7 +36,10 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         <div style={{ position: 'relative', width: '100%', height: '100%' }}>
             <div
                 ref={containerRef}
-                style={{ width: '100%', height: '100%', overflow: 'hidden' }}
+                style={{
+                    width: '100%', height: '100%', overflow: 'hidden',
+                    display: 'flex', justifyContent: 'center', alignItems: 'center'
+                }}
             />
 
             {isPaused && (

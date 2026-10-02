@@ -7,7 +7,7 @@ import type { ArenaMap, TileDef } from '../core/arena';
 import { GAME_CONFIG } from '../core/config';
 import { getTexture } from './assets';
 
-const ROTATION_OFFSET = Math.PI / 2; // Sprites point up, our 0 = +X
+const ROTATION_OFFSET = -Math.PI / 2; // Sprites point down, our 0 = -X
 
 export class GameRenderer {
     private app: Application;
