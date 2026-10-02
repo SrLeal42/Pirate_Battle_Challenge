@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { GameRuntime } from '../../runtime/gameRuntime';
-import { useGameStore } from '../../stores/gameStore';
+import { useGameStore, RuntimeStateEnum } from '../../stores/gameStore';
 
 import { StartScreen } from './StartScreen';
 import { HUD } from './HUD';
@@ -14,10 +14,7 @@ interface GameCanvasProps {
     spawnInterval?: number;
 }
 
-export const GameCanvas: React.FC<GameCanvasProps> = ({
-    sessionTime,
-    spawnInterval,
-}) => {
+export const GameCanvas: React.FC<GameCanvasProps> = () => {
     const containerRef = useRef<HTMLDivElement>(null);
     const runtimeRef = useRef<GameRuntime | null>(null);
 
@@ -41,22 +38,25 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         <div className={styles.container}>
             <div ref={containerRef} className={styles.canvasWrapper} />
 
-            {runtimeState === 'ready' && (
+            {runtimeState === RuntimeStateEnum.Ready && (
                 <StartScreen
-                    onStart={() => runtimeRef.current?.start(sessionTime, spawnInterval)}
+                    onStart={() => {
+                        const s = useGameStore.getState();
+                        runtimeRef.current?.start(s.sessionTime, s.spawnInterval);
+                    }}
                 />
             )}
 
-            {runtimeState === 'playing' && <HUD />}
+            {runtimeState === RuntimeStateEnum.Playing && <HUD />}
 
-            {runtimeState === 'ended' && (
+            {runtimeState === RuntimeStateEnum.Ended && (
                 <GameOverScreen
                     onRestart={() => runtimeRef.current?.restart()}
                     onQuit={() => runtimeRef.current?.quitToMenu()}
                 />
             )}
 
-            {runtimeState === 'paused' && (
+            {runtimeState === RuntimeStateEnum.Paused && (
                 <PauseScreen
                     onResume={() => runtimeRef.current?.resume()}
                     onQuit={() => runtimeRef.current?.quitToMenu()}

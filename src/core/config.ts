@@ -1,5 +1,15 @@
 import type { GameConfig } from './types';
 
+export const SESSION_STEPS = [60, 90, 120, 150, 180] as const;
+export const SPAWN_STEPS = [1, 2, 3, 5, 7, 10] as const;
+
+export const STORAGE_KEYS = {
+  playerName: 'pirate_playerName',
+  sessionTime: 'pirate_sessionTime',
+  spawnInterval: 'pirate_spawnInterval',
+} as const;
+
+
 export const GAME_CONFIG: GameConfig = {
   // Arena
   arenaWidth: 1280, // 20 tiles 64px

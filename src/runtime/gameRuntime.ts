@@ -5,7 +5,7 @@ import { createDefaultArena, type ArenaMap } from '../core/arena';
 import { GameRenderer } from '../render/gameRenderer';
 import { loadGameAssets } from '../render/assets';
 import { InputHandler } from '../input/inputHandler';
-import { useGameStore, type RuntimeState } from '../stores/gameStore';
+import { useGameStore, RuntimeStateEnum, type RuntimeState } from '../stores/gameStore';
 import type { GameState } from '../core/types';
 
 const STEP_MS = 1000 / 60; // Fixed 60Hz
@@ -49,7 +49,7 @@ export class GameRuntime {
     }
 
     private async _init(): Promise<void> {
-        this.setState('loading');
+        this.setState(RuntimeStateEnum.Loading);
 
         try {
             const app = new Application();
@@ -85,10 +85,10 @@ export class GameRuntime {
 
             if (this.destroyed) return;
 
-            this.setState('ready');
+            this.setState(RuntimeStateEnum.Ready);
         } catch (err) {
             if (!this.destroyed) {
-                this.setState('error');
+                this.setState(RuntimeStateEnum.Error);
                 useGameStore.setState({
                     errorMessage: err instanceof Error ? err.message : 'Failed to load',
                 });
@@ -122,7 +122,7 @@ export class GameRuntime {
 
         this.app.ticker.add(this.gameLoop);
 
-        this.setState('playing');
+        this.setState(RuntimeStateEnum.Playing);
         useGameStore.setState({
             score: 0,
             timeRemaining: sessionTime * 1000,
@@ -132,18 +132,18 @@ export class GameRuntime {
     }
 
     pause(): void {
-        if (useGameStore.getState().runtimeState !== 'playing') return;
+        if (useGameStore.getState().runtimeState !== RuntimeStateEnum.Playing) return;
         this.input.disable();
         this.input.reset();
-        this.setState('paused');
+        this.setState(RuntimeStateEnum.Paused);
     }
 
     resume(): void {
-        if (useGameStore.getState().runtimeState !== 'paused') return;
+        if (useGameStore.getState().runtimeState !== RuntimeStateEnum.Paused) return;
         this.accumulator = 0;
         this.input.reset();
         this.input.enable();
-        this.setState('playing');
+        this.setState(RuntimeStateEnum.Playing);
     }
 
     restart(): void {
@@ -167,7 +167,7 @@ export class GameRuntime {
         }
         this.simulation = null;
 
-        this.setState('ready');
+        this.setState(RuntimeStateEnum.Ready);
     }
 
     // --- Game loop (fixed timestep) ---
@@ -203,7 +203,7 @@ export class GameRuntime {
         if (gameState.isGameOver) {
             this.input.disable();
             this.app.ticker.remove(this.gameLoop);
-            this.setState('ended');
+            this.setState(RuntimeStateEnum.Ended);
             useGameStore.setState({ endReason: gameState.endReason });
         }
     };
@@ -282,6 +282,6 @@ export class GameRuntime {
         this.simulation = null;
         this.renderer = null;
         this.app = null;
-        this.setState('idle');
+        this.setState(RuntimeStateEnum.Idle);
     }
 }
