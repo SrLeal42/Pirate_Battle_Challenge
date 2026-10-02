@@ -22,14 +22,14 @@ export const GameOverScreen: React.FC<GameOverScreenProps> = ({ onRestart, onQui
                 <h1 className={styles.title}>{title}</h1>
                 <span className={styles.subtitle}>{subtitle}</span>
 
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <div className={styles.scoreWrapper}>
                     <span className={styles.scoreLabel}>Final Score</span>
                     <span className={styles.scoreValue} style={{ color: scoreColor }}>
                         {score}
                     </span>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div className={styles.buttonGroup}>
                     <button className={styles.button} onClick={onRestart}>
                         Play Again
                     </button>

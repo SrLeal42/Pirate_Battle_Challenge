@@ -114,3 +114,12 @@
         opacity: 1;
     }
 }
+
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    align-items: center;
+    width: 100%;
+}

@@ -8,14 +8,19 @@ interface StartScreenProps {
 }
 
 export const StartScreen: React.FC<StartScreenProps> = ({ onStart }) => {
-    const [username, setUsername] = useState('');
+    const [username, setUsername] = useState(() => localStorage.getItem('playerName') ?? '');
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (username.trim().length > 0) {
-            useGameStore.setState({ username: username.trim() });
+
+        const usernameTrim = username.trim();
+
+        if (usernameTrim.length > 0) {
+            localStorage.setItem('playerName', usernameTrim);
+            useGameStore.setState({ username: usernameTrim });
             onStart();
         }
+
     };
 
     return (
@@ -28,7 +33,7 @@ export const StartScreen: React.FC<StartScreenProps> = ({ onStart }) => {
                     className={styles.titleImage}
                 />
 
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '2rem', alignItems: 'center', width: '100%' }}>
+                <form onSubmit={handleSubmit} className={styles.form}>
                     <div className={styles.inputWrapper}>
                         <label className={styles.label}>Captain's Name</label>
                         <input

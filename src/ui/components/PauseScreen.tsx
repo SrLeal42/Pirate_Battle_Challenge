@@ -12,7 +12,7 @@ export const PauseScreen: React.FC<PauseScreenProps> = ({ onResume, onQuit }) =>
             <div className={styles.card}>
                 <h1 className={styles.title}>Paused</h1>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '1rem' }}>
+                <div className={styles.buttonGroup}>
                     <button className={styles.button} onClick={onResume}>
                         Resume
                     </button>
