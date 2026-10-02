@@ -155,7 +155,12 @@ export class GameRuntime {
     }
 
     quitToMenu(): void {
+
         this.app?.ticker.remove(this.gameLoop);
+
+        this.input.disable();
+        this.input.reset();
+
         if (this.renderer) {
             this.renderer.destroy();
             this.renderer = null;

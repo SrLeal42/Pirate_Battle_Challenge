@@ -85,7 +85,6 @@ export class GameRenderer {
         this.playerSprite.y = p.position.y;
         this.playerSprite.rotation = p.rotation + ROTATION_OFFSET;
         this.playerSprite.visible = !p.isDead;
-        this.playerSprite.alpha = p.isDead ? 0 : 1;
     }
 
     private updateEnemies(state: Readonly<GameState>): void {
