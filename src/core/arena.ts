@@ -110,10 +110,11 @@ function buildIslandTiles(spec: IslandSpec): TileDef[] {
 }
 
 // --- Default Arena Layout ---
-// 20x11 tiles (1280x704), islands away from borders for valid spawns
+// 30x17 tiles (1920x1088), islands away from borders for valid spawns
 const DEFAULT_ISLANDS: IslandSpec[] = [
-    { col: 3, row: 2, widthTiles: 3, heightTiles: 3 },
-    { col: 14, row: 6, widthTiles: 3, heightTiles: 3 },
+    { col: 4, row: 3, widthTiles: 5, heightTiles: 5 },
+    { col: 10, row: 14, widthTiles: 7, heightTiles: 3 },
+    { col: 22, row: 6, widthTiles: 3, heightTiles: 6 },
 ];
 
 export function createDefaultArena(): ArenaMap {

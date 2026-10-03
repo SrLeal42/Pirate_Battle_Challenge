@@ -14,8 +14,8 @@ export const STORAGE_KEYS = {
 
 export const GAME_CONFIG: GameConfig = {
   // Arena
-  arenaWidth: 1280, // 20 tiles 64px
-  arenaHeight: 704, // 11 tiles 64px
+  arenaWidth: 1920, // 30 tiles
+  arenaHeight: 1088, // 17 tiles 
   tileSize: 64,
 
   // Game Session
