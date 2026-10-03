@@ -12,7 +12,7 @@ A 2D top-down naval shooter game built with **React**, **TypeScript**, and **Pix
 2. **Environment Variables:**
    No specific environment variables are required to run the game locally, as all network operations (Leaderboard and History) are mocked using **MSW** (Mock Service Worker).
 
-## 🎮 Controls
+## Controls
 
 The game supports keyboard controls and provides on-screen touch controls for mobile devices.
 - **Move Forward:** `W` or `Arrow Up`
