@@ -1,0 +1,181 @@
+.card {
+    background-image: url('/assets/png/default/ui/menu/panel_menu.png');
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 650px;
+    min-height: 650px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 3.5rem 4rem;
+    box-sizing: border-box;
+    gap: 1.5rem;
+}
+
+.title {
+    color: #fde047;
+    font-size: 2.5rem;
+    text-transform: uppercase;
+    font-weight: 900;
+    text-shadow: 2px 2px 0px #000;
+    margin: 0;
+}
+
+.tabButtons {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.tabActive {
+    background-image: url('/assets/png/default/ui/menu/button_primary_normal.png');
+    background-size: 100% 100%;
+    background-color: transparent;
+    border: none;
+    width: 160px;
+    height: 50px;
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: default;
+    text-transform: uppercase;
+}
+
+.tabInactive {
+    background-image: url('/assets/png/default/ui/menu/button_secondary_normal.png');
+    background-size: 100% 100%;
+    background-color: transparent;
+    border: none;
+    width: 160px;
+    height: 50px;
+    color: #fde047;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: filter 0.1s;
+}
+
+.tabInactive:hover {
+    filter: brightness(1.2);
+}
+
+.tableContainer {
+    flex: 1;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    color: white;
+    text-align: left;
+}
+
+.table th {
+    color: #fde047;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    padding: 0.5rem;
+    text-transform: uppercase;
+}
+
+.table td {
+    padding: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.highlightRow {
+    background-color: rgba(253, 224, 71, 0.15);
+    font-weight: bold;
+}
+
+.textGreen {
+    color: #4ade80;
+}
+
+.textRed {
+    color: #f87171;
+}
+
+.loading,
+.empty {
+    text-align: center;
+    color: white;
+    font-weight: bold;
+    margin-top: 2rem;
+}
+
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.closeButton {
+    background-image: url('/assets/png/default/ui/menu/button_secondary_normal.png');
+    background-size: 100% 100%;
+    background-color: transparent;
+    border: none;
+    width: 200px;
+    height: 60px;
+    color: #fde047;
+    font-size: 1.1rem;
+    font-weight: 900;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+.categoryInfo {
+    color: #c5c5c5;
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-top: -0.5rem;
+    margin-bottom: 1.5rem;
+    text-shadow: 1px 1px 0px #000;
+}
+
+
+
+
+.pageButton {
+    background-image: url('/assets/png/default/ui/controls/button_round_normal.png');
+    background-size: 100% 100%;
+    background-color: transparent;
+    border: none;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+
+.pageButton:hover:not(:disabled) {
+    background-image: url('/assets/png/default/ui/controls/button_round_hover.png');
+}
+
+.pageButton:active:not(:disabled) {
+    background-image: url('/assets/png/default/ui/controls/button_round_pressed.png');
+    transform: translateY(2px);
+}
+
+.pageButton:disabled {
+    filter: grayscale(1) opacity(0.5);
+    cursor: not-allowed;
+}
+
+.pageIcon {
+    width: 24px;
+    height: 24px;
+}
+
+.iconFlipped {
+    transform: scaleX(-1);
+}

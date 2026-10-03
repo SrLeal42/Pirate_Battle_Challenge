@@ -3,13 +3,17 @@ import styles from './StartScreen.module.css';
 
 import { useGameStore } from '../../stores/gameStore';
 import { STORAGE_KEYS } from '../../core/config';
+
 import { OptionsScreen } from './OptionsScreen';
+import { LeaderboardScreen } from './LeaderboardScreen';
 
 
 
 export const MenuViewEnum = {
     Main: 'main',
     Options: 'options',
+    Ranking: 'ranking',
+    History: 'history',
 } as const;
 
 export type MenuView = typeof MenuViewEnum[keyof typeof MenuViewEnum];
@@ -39,9 +43,19 @@ export const StartScreen: React.FC<StartScreenProps> = ({ onStart }) => {
     return (
 
         <div className={styles.overlay}>
-            {view === 'options' ? (
+
+            {view === MenuViewEnum.Options && (
                 <OptionsScreen onClose={() => setView(MenuViewEnum.Main)} />
-            ) : (
+            )}
+
+            {(view === MenuViewEnum.Ranking || view === MenuViewEnum.History) && (
+                <LeaderboardScreen
+                    initialTab={view === MenuViewEnum.Ranking ? 'ranking' : 'history'}
+                    onClose={() => setView(MenuViewEnum.Main)}
+                />
+            )}
+
+            {view === MenuViewEnum.Main && (
                 <div className={styles.card}>
                     <img
                         src="/assets/png/default/ui/menu/title_pirate_battle.png"
@@ -71,6 +85,15 @@ export const StartScreen: React.FC<StartScreenProps> = ({ onStart }) => {
                             </button>
                         </div>
                     </form>
+
+                    <div className={styles.footerButtons}>
+                        <button type="button" className={styles.smallButton} onClick={() => setView(MenuViewEnum.Ranking)}>
+                            Ranking
+                        </button>
+                        <button type="button" className={styles.smallButton} onClick={() => setView(MenuViewEnum.History)}>
+                            History
+                        </button>
+                    </div>
 
                 </div>
             )}

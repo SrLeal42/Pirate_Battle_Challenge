@@ -5,19 +5,17 @@
     justify-content: center;
     align-items: center;
     background: rgba(15, 23, 42, 0.6);
-    /* Apenas escurece o fundo */
     animation: fadeIn 0.5s ease-out;
 }
 
 .card {
-    /* Usa a imagem do painel como fundo */
     background-image: url('/assets/png/default/ui/menu/panel_menu.png');
     background-size: 100% 100%;
     background-position: center;
     background-repeat: no-repeat;
 
-    width: 550px;
-    min-height: 650px;
+    width: 600px;
+    min-height: 700px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -28,9 +26,8 @@
 }
 
 .titleImage {
-    width: 110%;
-    margin-top: -120px;
-    /* Puxa o logo um pouco para cima do painel */
+    width: 105%;
+    margin-top: -30px;
     filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.5));
 }
 
@@ -44,7 +41,6 @@
 
 .label {
     color: #fde047;
-    /* Amarelo ouro para combinar com a madeira */
     font-size: 1rem;
     text-transform: uppercase;
     font-weight: 800;
@@ -154,6 +150,40 @@
 }
 
 .buttonSecondary:active {
+    background-image: url('/assets/png/default/ui/menu/button_secondary_pressed.png');
+    transform: translateY(2px);
+}
+
+
+.footerButtons {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1rem;
+    width: 100%;
+    justify-content: center;
+}
+
+.smallButton {
+    background-image: url('/assets/png/default/ui/menu/button_secondary_normal.png');
+    background-size: 100% 100%;
+    background-color: transparent;
+    border: none;
+    width: 160px;
+    height: 55px;
+    color: #fde047;
+    font-size: 1rem;
+    font-weight: 900;
+    cursor: pointer;
+    text-transform: uppercase;
+    text-shadow: 0px 2px 0px rgba(0, 0, 0, 0.5);
+    transition: transform 0.1s, filter 0.1s;
+}
+
+.smallButton:hover {
+    filter: brightness(1.2);
+}
+
+.smallButton:active {
     background-image: url('/assets/png/default/ui/menu/button_secondary_pressed.png');
     transform: translateY(2px);
 }
