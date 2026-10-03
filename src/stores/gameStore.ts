@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
 
-import { STORAGE_KEYS, GAME_CONFIG } from '../core/config';
+import { STORAGE_KEYS, GAME_CONFIG, SESSION_STEPS, SPAWN_STEPS } from '../core/config';
 
 import { lastResultStorage } from '../features/matches/storage';
 import type { MatchRecord } from '../features/matches/types';
@@ -39,12 +39,18 @@ if (!localPlayerId) {
     localStorage.setItem(STORAGE_KEYS.playerId, localPlayerId);
 }
 
+/** Reads a persisted option, accepting only values exposed by the Options screen. */
+function readOption(key: string, allowed: readonly number[], fallback: number): number {
+    const value = Number(localStorage.getItem(key));
+    return allowed.includes(value) ? value : fallback;
+}
+
 export const useGameStore = create<GameStoreState>(() => ({
     runtimeState: RuntimeStateEnum.Idle,
     playerId: localPlayerId as string,
     username: '',
-    sessionTime: parseInt(localStorage.getItem(STORAGE_KEYS.sessionTime) || String(GAME_CONFIG.defaultSessionTime), 10),
-    spawnInterval: parseInt(localStorage.getItem(STORAGE_KEYS.spawnInterval) || String(GAME_CONFIG.defaultSpawnInterval), 10),
+    sessionTime: readOption(STORAGE_KEYS.sessionTime, SESSION_STEPS, GAME_CONFIG.defaultSessionTime),
+    spawnInterval: readOption(STORAGE_KEYS.spawnInterval, SPAWN_STEPS, GAME_CONFIG.defaultSpawnInterval),
     score: 0,
     timeRemaining: 0,
     playerHealth: 100,

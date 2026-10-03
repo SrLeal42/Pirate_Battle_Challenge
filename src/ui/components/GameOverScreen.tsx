@@ -4,9 +4,9 @@ import { useGameStore } from '../../stores/gameStore';
 import { useMatchSyncStatus, type MatchSyncStatus } from '../../features/matches/hooks';
 import { pendingQueue } from '../../features/matches/storage';
 import { API_CONFIG } from '../../core/config';
-import type { EndReason } from '../../features/matches/types';
 
 import { useDialog } from '../hooks/useDialog';
+import { END_REASON_LABEL, formatDuration } from '../format';
 
 import styles from './GameOverScreen.module.css';
 
@@ -14,16 +14,6 @@ interface GameOverScreenProps {
     onRestart: () => void;
     onQuit: () => void;
 }
-
-const END_REASON_LABEL: Record<EndReason, string> = {
-    time_up: 'Time is up',
-    player_died: 'Ship destroyed',
-};
-
-const formatDuration = (ms: number): string => {
-    const total = Math.round(ms / 1000);
-    return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;
-};
 
 function syncMessage(status: MatchSyncStatus): string {
     switch (status.kind) {
@@ -63,7 +53,7 @@ export const GameOverScreen: React.FC<GameOverScreenProps> = ({ onRestart, onQui
                 ref={dialogRef}
                 tabIndex={-1}
             >
-                <h1 className={styles.title}>{title}</h1>
+                <h1 id="gameover-title" className={styles.title}>{title}</h1>
                 <span className={styles.subtitle}>{subtitle}</span>
 
                 <div className={styles.scoreWrapper}>

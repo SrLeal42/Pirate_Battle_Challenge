@@ -15,6 +15,17 @@ const ROTATION_OFFSET = -Math.PI / 2; // Sprites point down, our 0 = -X
 const PLAYER_BAR = { width: 90, offsetY: 50 } as const;
 const ENEMY_BAR = { width: 64, offsetY: 45 } as const;
 
+const TRAIL = { chance: 0.3, lifeMs: 300, radius: 3, alpha: 0.5, growth: 1.5 } as const;
+const EXPLOSION = { lifeMs: 500, scale: 1.5 } as const;
+
+/** Short-lived visual driven by the renderer's single effects loop. */
+interface Effect {
+    display: Container;
+    life: number;
+    readonly maxLife: number;
+    readonly update: (display: Container, progress: number) => void; // progress: 0 → 1
+}
+
 
 export class GameRenderer {
     private app: Application;
@@ -30,6 +41,7 @@ export class GameRenderer {
     private healthBars: Map<string, HealthBar> = new Map();
     private playerHealthBar!: HealthBar;
 
+    private effects: Effect[] = [];
 
     private arenaMap: ArenaMap;
     private debugGraphics: Graphics | null = null;
@@ -55,11 +67,15 @@ export class GameRenderer {
 
         this.playerHealthBar = new HealthBar(PLAYER_HEALTH_SKIN, PLAYER_BAR.width);
         this.barContainer.addChild(this.playerHealthBar);
+
+        // Effects keep animating while paused/ended; one listener for all of them
+        this.app.ticker.add(this.updateEffects);
     }
 
     private buildArena(): void {
         const ts = GAME_CONFIG.tileSize;
         for (const tile of this.arenaMap.tiles) {
+            if (tile.type === 'water') continue; // Water is rendered in background css/other way
             const alias = `tile_${tile.type}`;
             const tex = getTexture(alias);
             if (!tex) continue;
@@ -173,7 +189,7 @@ export class GameRenderer {
             sprite.x = proj.position.x;
             sprite.y = proj.position.y;
 
-            if (Math.random() < 0.3) {
+            if (Math.random() < TRAIL.chance) {
                 this.spawnTrailParticle(proj.position.x, proj.position.y);
             }
         }
@@ -190,30 +206,36 @@ export class GameRenderer {
 
     private spawnTrailParticle(x: number, y: number): void {
         const smoke = new Graphics();
+        smoke.circle(0, 0, TRAIL.radius);
+        smoke.fill({ color: 0xcccccc, alpha: TRAIL.alpha });
+        smoke.position.set(x, y);
 
-        smoke.circle(0, 0, 3);
-        smoke.fill({ color: 0xcccccc, alpha: 0.5 });
-        smoke.x = x;
-        smoke.y = y;
-
-        this.effectContainer.addChild(smoke);
-        let life = 300;
-        const ticker = this.app.ticker;
-
-        const onTick = () => {
-            life -= ticker.deltaMS;
-            smoke.alpha = Math.max(0, (life / 200) * 0.5);
-            smoke.scale.set(1 + (1 - life / 200) * 1.5);
-
-            if (life <= 0) {
-                ticker.remove(onTick);
-                this.effectContainer.removeChild(smoke);
-                smoke.destroy();
-            }
-        };
-
-        ticker.add(onTick);
+        this.addEffect(smoke, TRAIL.lifeMs, (display, t) => {
+            display.alpha = (1 - t) * TRAIL.alpha;
+            display.scale.set(1 + t * TRAIL.growth);
+        });
     }
+
+    private addEffect(display: Container, lifeMs: number, update: Effect['update']): void {
+        this.effectContainer.addChild(display);
+        this.effects.push({ display, life: lifeMs, maxLife: lifeMs, update });
+    }
+
+    private updateEffects = (): void => {
+        const dt = this.app.ticker.deltaMS;
+        // Swap-remove: no per-frame allocations
+        for (let i = this.effects.length - 1; i >= 0; i--) {
+            const fx = this.effects[i];
+            fx.life -= dt;
+            if (fx.life <= 0) {
+                fx.display.destroy();
+                this.effects[i] = this.effects[this.effects.length - 1];
+                this.effects.pop();
+                continue;
+            }
+            fx.update(fx.display, 1 - fx.life / fx.maxLife);
+        }
+    };
 
     private updateHealthBars(state: Readonly<GameState>): void {
         const p = state.player;
@@ -260,24 +282,21 @@ export class GameRenderer {
 
         const explosion = new Sprite(tex);
         explosion.anchor.set(0.5);
-        explosion.x = sprite.x;
-        explosion.y = sprite.y;
-        explosion.scale.set(1.5);
-        this.effectContainer.addChild(explosion);
+        explosion.position.set(sprite.x, sprite.y);
+        explosion.scale.set(EXPLOSION.scale);
 
-        // Simple fade out and remove
-        let life = 500; // ms
-        const ticker = this.app.ticker;
-        const onTick = () => {
-            life -= ticker.deltaMS;
-            explosion.alpha = Math.max(0, life / 500);
-            if (life <= 0) {
-                ticker.remove(onTick);
-                this.effectContainer.removeChild(explosion);
-                explosion.destroy();
-            }
+        this.addEffect(explosion, EXPLOSION.lifeMs, (display, t) => {
+            display.alpha = 1 - t;
+        });
+    }
+
+    getStats(): { enemySprites: number; projectileSprites: number; healthBars: number; activeEffects: number } {
+        return {
+            enemySprites: this.enemySprites.size,
+            projectileSprites: this.projectileSprites.size,
+            healthBars: this.healthBars.size,
+            activeEffects: this.effects.length,
         };
-        ticker.add(onTick);
     }
 
     // Debug overlay: draw collision hitboxes
@@ -333,6 +352,9 @@ export class GameRenderer {
     }
 
     destroy(): void {
+        this.app.ticker.remove(this.updateEffects);
+        this.effects = []; // displays are destroyed with effectContainer below
+
         // Cleanup all sprites
         for (const [, sprite] of this.enemySprites) sprite.destroy();
         for (const [, sprite] of this.projectileSprites) sprite.destroy();

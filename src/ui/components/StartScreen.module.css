@@ -188,3 +188,55 @@
     background-image: url('/assets/png/default/ui/menu/button_secondary_pressed.png');
     transform: translateY(2px);
 }
+
+/* --- Last match --- */
+.lastMatch {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.35);
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.lastMatchTitle {
+    margin: 0 0 0.5rem;
+    color: #fde047;
+    font-size: 0.9rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-shadow: 1px 1px 0 #000;
+}
+
+.lastMatchDetails {
+    display: flex;
+    justify-content: space-around;
+    gap: 1rem;
+    margin: 0;
+}
+
+.lastMatchDetails dt {
+    color: #cbd5e1;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.lastMatchDetails dd {
+    margin: 0;
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 900;
+    text-shadow: 1px 1px 0 #000;
+}
+
+/* --- Pending sync --- */
+.pendingNotice {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: #fde047;
+    font-weight: 800;
+    text-shadow: 1px 1px 0 #000;
+}

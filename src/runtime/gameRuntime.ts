@@ -3,7 +3,7 @@ import { Application } from 'pixi.js';
 import { Simulation } from '../core/simulation';
 import { GAME_CONFIG } from '../core/config';
 import { createDefaultArena, type ArenaMap } from '../core/arena';
-import type { GameState } from '../core/types';
+import type { GameConfig, GameEvent, GameState } from '../core/types';
 
 import { GameRenderer } from '../render/gameRenderer';
 import { loadGameAssets } from '../render/assets';
@@ -14,6 +14,7 @@ import { useGameStore, RuntimeStateEnum, type RuntimeState } from '../stores/gam
 
 import type { MatchResult } from '../features/matches/types';
 
+import { getTestConfig, type GameTestApi, type TestConfig } from '../testing/testHooks';
 
 
 interface MatchSettings {
@@ -24,6 +25,7 @@ interface MatchSettings {
 
 const STEP_MS = 1000 / 60; // Fixed 60Hz
 const MAX_DELTA = 100;      // Clamp to prevent spiral of death
+const MAX_STEPS_PER_FRAME = Math.round(MAX_DELTA / STEP_MS);
 
 export class GameRuntime {
     private app: Application | null = null;
@@ -43,6 +45,10 @@ export class GameRuntime {
     public onMatchEnd: ((result: MatchResult) => void) | null = null;
     private settings: MatchSettings | null = null;
 
+    // Test instrumentation (inactive in normal sessions)
+    private readonly testConfig: TestConfig | null = getTestConfig();
+    private eventLog: GameEvent[] = [];
+
 
     constructor(container: HTMLElement) {
         this.container = container;
@@ -57,6 +63,8 @@ export class GameRuntime {
         };
 
         this.disposables.push(() => this.input.destroy());
+
+        if (this.testConfig) this.exposeTestApi();
     }
 
     // --- Init ---
@@ -143,13 +151,18 @@ export class GameRuntime {
         const spawnInterval = spawnIntervalSec ?? GAME_CONFIG.defaultSpawnInterval;
         this.settings = { sessionTime, spawnInterval }; // snapshot reused by restart()
 
+        const config: GameConfig = this.testConfig?.config
+            ? { ...GAME_CONFIG, ...this.testConfig.config }
+            : GAME_CONFIG;
+
         this.simulation = new Simulation(
-            GAME_CONFIG,
+            config,
             this.arenaMap.arenaDef,
-            Date.now(),
+            this.testConfig?.seed ?? Date.now(),
             sessionTime,
             spawnInterval,
         );
+        this.eventLog = [];
 
         if (this.renderer) this.renderer.destroy();
         this.renderer = new GameRenderer(this.app, this.arenaMap);
@@ -216,20 +229,30 @@ export class GameRuntime {
     private gameLoop = (): void => {
         if (!this.simulation || !this.renderer || !this.app) return;
         if (useGameStore.getState().runtimeState !== 'playing') return;
+        if (this.testConfig?.manualClock) return; // advanced by the test API only
 
-        const dt = Math.min(this.app.ticker.deltaMS, MAX_DELTA);
-        this.accumulator += dt;
-
-        const input = this.input.getState();
+        this.accumulator += Math.min(this.app.ticker.deltaMS, MAX_DELTA);
 
         // Fixed step: consume accumulator
+        let steps = 0;
         while (this.accumulator >= STEP_MS) {
-            this.simulation.step(STEP_MS, input);
+            steps++;
             this.accumulator -= STEP_MS;
         }
 
+        this.advanceFrame(steps);
+    };
+
+    /** Runs `steps` fixed simulation steps, then renders and syncs once (one visual frame). */
+    private advanceFrame(steps: number): void {
+        if (!this.simulation || !this.renderer) return;
+
+        const input = this.input.getState();
+        for (let i = 0; i < steps; i++) this.simulation.step(STEP_MS, input);
+
         // Process events → effects
         const events = this.simulation.drainEvents();
+        if (this.testConfig) this.eventLog.push(...events);
         this.renderer.handleEvents(events);
 
         // Render current state
@@ -242,7 +265,51 @@ export class GameRuntime {
 
         // Check game over
         if (gameState.isGameOver) this.endMatch(gameState);
-    };
+    }
+
+    /** Manual clock: same frame pipeline as the ticker, capped like MAX_DELTA per frame. */
+    private advanceManually(ms: number): void {
+        let remaining = Math.round(ms / STEP_MS);
+        while (remaining > 0 && useGameStore.getState().runtimeState === RuntimeStateEnum.Playing) {
+            const steps = Math.min(remaining, MAX_STEPS_PER_FRAME);
+            this.advanceFrame(steps);
+            remaining -= steps;
+        }
+    }
+
+    // --- Test instrumentation ---
+
+    private exposeTestApi(): void {
+        const manualClock = this.testConfig?.manualClock ?? false;
+
+        const api: GameTestApi = {
+            manualClock,
+            getRuntimeState: () => useGameStore.getState().runtimeState,
+            getState: () => this.simulation
+                ? {
+                    ...structuredClone(this.simulation.getState()),
+                    runtimeState: useGameStore.getState().runtimeState,
+                    settings: this.settings ? { ...this.settings } : null,
+                }
+                : null,
+            getEvents: () => structuredClone(this.eventLog),
+            advance: (ms) => {
+                if (!manualClock) throw new Error('advance() requires manualClock');
+                this.advanceManually(ms);
+            },
+            getRenderStats: () => this.app
+                ? {
+                    tickerListeners: this.app.ticker.count,
+                    stageChildren: this.app.stage.children.length,
+                    ...(this.renderer?.getStats() ?? { enemySprites: 0, projectileSprites: 0, healthBars: 0, activeEffects: 0 }),
+                }
+                : null,
+        };
+
+        window.__game = api;
+        // Strict Mode: only the runtime that owns the handle may remove it
+        this.disposables.push(() => { if (window.__game === api) delete window.__game; });
+    }
 
 
     private endMatch(state: Readonly<GameState>): void {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useId, useState } from 'react';
 import styles from './StartScreen.module.css';
 
 import { useGameStore } from '../../stores/gameStore';
@@ -7,6 +7,7 @@ import { STORAGE_KEYS } from '../../core/config';
 import { OptionsScreen } from './OptionsScreen';
 import { LeaderboardScreen } from './LeaderboardScreen';
 import { ControlsGuide } from './ControlsGuide';
+import { END_REASON_LABEL, formatDuration } from '../format';
 
 import { usePendingMatches } from '../../features/matches/hooks';
 import { pendingQueue } from '../../features/matches/storage';
@@ -32,6 +33,9 @@ export const StartScreen: React.FC<StartScreenProps> = ({ onStart }) => {
     const [view, setView] = useState<MenuView>(MenuViewEnum.Main);
 
     const pending = usePendingMatches();
+    const lastMatch = useGameStore((s) => s.lastMatch);
+    const nameInputId = useId();
+    const lastMatchTitleId = useId();
 
     useEffect(() => {
         pendingQueue.requestSync(); // retry when returning to the menu
@@ -79,13 +83,16 @@ export const StartScreen: React.FC<StartScreenProps> = ({ onStart }) => {
 
                     <form onSubmit={handleSubmit} className={styles.form}>
                         <div className={styles.inputWrapper}>
-                            <label className={styles.label}>Captain's Name</label>
+                            <label className={styles.label} htmlFor={nameInputId}>Captain's Name</label>
                             <input
+                                id={nameInputId}
                                 type="text"
                                 className={styles.input}
                                 placeholder="Type your name..."
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
+                                maxLength={24}
+                                required
                                 autoFocus
                             />
                         </div>
@@ -111,6 +118,26 @@ export const StartScreen: React.FC<StartScreenProps> = ({ onStart }) => {
                             History
                         </button>
                     </div>
+
+                    {lastMatch && (
+                        <section className={styles.lastMatch} aria-labelledby={lastMatchTitleId}>
+                            <h2 id={lastMatchTitleId} className={styles.lastMatchTitle}>Last match</h2>
+                            <dl className={styles.lastMatchDetails}>
+                                <div>
+                                    <dt>Score</dt>
+                                    <dd>{lastMatch.score}</dd>
+                                </div>
+                                <div>
+                                    <dt>Time played</dt>
+                                    <dd>{formatDuration(lastMatch.durationMs)}</dd>
+                                </div>
+                                <div>
+                                    <dt>Reason</dt>
+                                    <dd>{END_REASON_LABEL[lastMatch.endReason]}</dd>
+                                </div>
+                            </dl>
+                        </section>
+                    )}
 
                     {pending.length > 0 && (
                         <div className={styles.pendingNotice} role="status">

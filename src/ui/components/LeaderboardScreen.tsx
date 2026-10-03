@@ -32,10 +32,12 @@ export const LeaderboardScreen: React.FC<LeaderboardScreenProps> = ({ initialTab
 
     const dialogRef = useDialog(true, onClose);
 
-    const { data: rankingData, isLoading: loadingRanking } = useLeaderboard(configKey, page);
-    const { data: historyData, isLoading: loadingHistory } = useMatchHistory(playerId, page);
+    const { data: rankingData, isLoading: loadingRanking, isError: errorRanking, refetch: refetchRanking } = useLeaderboard(configKey, page);
+    const { data: historyData, isLoading: loadingHistory, isError: errorHistory, refetch: refetchHistory } = useMatchHistory(playerId, page);
 
     const isLoading = activeTab === 'ranking' ? loadingRanking : loadingHistory;
+    const isError = activeTab === 'ranking' ? errorRanking : errorHistory;
+    const refetch = activeTab === 'ranking' ? refetchRanking : refetchHistory;
     const currentData = activeTab === 'ranking' ? rankingData : historyData;
 
     const totalPages = Math.max(1, Math.ceil((currentData?.total || 0) / 10));
@@ -82,6 +84,11 @@ export const LeaderboardScreen: React.FC<LeaderboardScreenProps> = ({ initialTab
             <div className={styles.tableContainer}>
                 {isLoading ? (
                     <div className={styles.loading}>Loading records...</div>
+                ) : isError ? (
+                    <div className={styles.empty}>
+                        Failed to load ranking <br />
+                        <button className={styles.pageButton} onClick={() => refetch()}>Retry</button>
+                    </div>
                 ) : currentData?.data.length === 0 ? (
                     <div className={styles.empty}>No records found.</div>
                 ) : (
