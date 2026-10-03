@@ -43,7 +43,7 @@ export const LeaderboardScreen: React.FC<LeaderboardScreenProps> = ({ initialTab
     };
 
     return (
-        <div className={styles.card}>
+        <div className={`${styles.card} responsive-card`}>
             <h1 className={styles.title}>{activeTab === 'ranking' ? 'Leaderboard' : 'Match History'}</h1>
 
             <div className={styles.tabButtons}>

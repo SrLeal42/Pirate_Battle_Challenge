@@ -5,11 +5,54 @@
     font-family: 'Inter', system-ui, sans-serif;
 }
 
-.canvasWrapper {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.canvasWrapper canvas {
+    max-width: 100vw;
+    max-height: 100vh;
+    object-fit: contain;
+}
+
+.portraitWarning {
+    display: none;
+}
+
+@media screen and (hover: none) and (pointer: coarse) and (orientation: portrait) {
+    .portraitWarning {
+        display: flex;
+        position: fixed;
+        inset: 0;
+        background-color: #0f172a;
+        z-index: 9999;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: #fde047;
+        font-size: 1.5rem;
+        text-align: center;
+        padding: 2rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        text-shadow: 2px 2px 0px #000;
+    }
+
+    .rotateIcon {
+        width: 120px;
+        height: 120px;
+        margin-bottom: 2rem;
+        filter: drop-shadow(2px 2px 0px #000);
+        animation: tilt 2s infinite ease-in-out;
+    }
+}
+
+@keyframes tilt {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    50% {
+        transform: rotate(-90deg);
+    }
+
+    100% {
+        transform: rotate(0deg);
+    }
 }

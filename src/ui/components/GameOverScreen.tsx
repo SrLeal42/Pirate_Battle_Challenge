@@ -49,7 +49,7 @@ export const GameOverScreen: React.FC<GameOverScreenProps> = ({ onRestart, onQui
 
     return (
         <div className={styles.overlay}>
-            <div className={styles.card}>
+            <div className={`${styles.card} responsive-card`}>
                 <h1 className={styles.title}>{title}</h1>
                 <span className={styles.subtitle}>{subtitle}</span>
 

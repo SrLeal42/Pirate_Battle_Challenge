@@ -36,6 +36,15 @@ export const GameCanvas: React.FC<GameCanvasProps> = () => {
 
     return (
         <div className={styles.container}>
+
+            <div className={styles.portraitWarning}>
+                <img src="/assets/png/default/ui/controls/icon_restart.png" className={styles.rotateIcon} alt="Rotate" />
+                <p>Please rotate your device</p>
+                <span style={{ fontSize: '1rem', color: 'white', marginTop: '1rem', textShadow: 'none' }}>
+                    Pirate Battle is best played in landscape mode
+                </span>
+            </div>
+
             <div ref={containerRef} className={styles.canvasWrapper} />
 
             {runtimeState === RuntimeStateEnum.Ready && (

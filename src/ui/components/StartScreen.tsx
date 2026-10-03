@@ -56,7 +56,7 @@ export const StartScreen: React.FC<StartScreenProps> = ({ onStart }) => {
             )}
 
             {view === MenuViewEnum.Main && (
-                <div className={styles.card}>
+                <div className={`${styles.card} responsive-card`} >
                     <img
                         src="/assets/png/default/ui/menu/title_pirate_battle.png"
                         alt="Pirate Battle"

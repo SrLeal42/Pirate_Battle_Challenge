@@ -34,7 +34,7 @@ export const OptionsScreen: React.FC<OptionsScreenProps> = ({ onClose }) => {
     };
 
     return (
-        <div className={styles.card}>
+        <div className={`${styles.card} responsive-card`}>
             <h1 className={styles.title}>Options</h1>
 
             <div className={styles.optionGroup}>

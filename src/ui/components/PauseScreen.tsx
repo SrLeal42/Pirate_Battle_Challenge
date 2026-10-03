@@ -9,7 +9,7 @@ interface PauseScreenProps {
 export const PauseScreen: React.FC<PauseScreenProps> = ({ onResume, onQuit }) => {
     return (
         <div className={styles.overlay}>
-            <div className={styles.card}>
+            <div className={`${styles.card} responsive-card`}>
                 <h1 className={styles.title}>Paused</h1>
 
                 <div className={styles.buttonGroup}>
