@@ -94,22 +94,49 @@ export class GameRenderer {
         this.playerSprite.y = p.position.y;
         this.playerSprite.rotation = p.rotation + ROTATION_OFFSET;
         this.playerSprite.visible = !p.isDead;
+
+        const healthRatio = p.health / GAME_CONFIG.playerMaxHealth;
+        let texAlias = 'ship_player';
+
+        if (healthRatio <= 0.25) {
+            texAlias = 'ship_player_damage_2';
+        } else if (healthRatio <= 0.5) {
+            texAlias = 'ship_player_damage_1';
+        }
+
+        const tex = getTexture(texAlias);
+        if (tex && this.playerSprite.texture !== tex) {
+            this.playerSprite.texture = tex;
+        }
     }
 
     private updateEnemies(state: Readonly<GameState>): void {
         const activeIds = new Set<string>();
-
         for (const enemy of state.enemies) {
             if (enemy.isDead) continue;
             activeIds.add(enemy.id);
 
+            const maxHp = enemy.type === 'chaser' ? GAME_CONFIG.chaserHealth : GAME_CONFIG.shooterHealth;
+            const healthRatio = enemy.health / maxHp;
+
+            let texAlias = enemy.type === 'chaser' ? 'ship_chaser' : 'ship_shooter';
+            if (healthRatio <= 0.25) {
+                texAlias = enemy.type === 'chaser' ? 'ship_chaser_damage_2' : 'ship_shooter_damage_2';
+            } else if (healthRatio <= 0.5) {
+                texAlias = enemy.type === 'chaser' ? 'ship_chaser_damage_1' : 'ship_shooter_damage_1';
+            }
+
             let sprite = this.enemySprites.get(enemy.id);
             if (!sprite) {
-                const texAlias = enemy.type === 'chaser' ? 'ship_chaser' : 'ship_shooter';
                 sprite = new Sprite(getTexture(texAlias));
                 sprite.anchor.set(0.5);
                 this.entityContainer.addChild(sprite);
                 this.enemySprites.set(enemy.id, sprite);
+            }
+
+            const currentTex = getTexture(texAlias);
+            if (currentTex && sprite.texture !== currentTex) {
+                sprite.texture = currentTex;
             }
 
             sprite.x = enemy.position.x;
@@ -145,6 +172,10 @@ export class GameRenderer {
 
             sprite.x = proj.position.x;
             sprite.y = proj.position.y;
+
+            if (Math.random() < 0.3) {
+                this.spawnTrailParticle(proj.position.x, proj.position.y);
+            }
         }
 
         // Remove expired projectiles
@@ -155,6 +186,33 @@ export class GameRenderer {
                 this.projectileSprites.delete(id);
             }
         }
+    }
+
+    private spawnTrailParticle(x: number, y: number): void {
+        const smoke = new Graphics();
+
+        smoke.circle(0, 0, 3);
+        smoke.fill({ color: 0xcccccc, alpha: 0.5 });
+        smoke.x = x;
+        smoke.y = y;
+
+        this.effectContainer.addChild(smoke);
+        let life = 300;
+        const ticker = this.app.ticker;
+
+        const onTick = () => {
+            life -= ticker.deltaMS;
+            smoke.alpha = Math.max(0, (life / 200) * 0.5);
+            smoke.scale.set(1 + (1 - life / 200) * 1.5);
+
+            if (life <= 0) {
+                ticker.remove(onTick);
+                this.effectContainer.removeChild(smoke);
+                smoke.destroy();
+            }
+        };
+
+        ticker.add(onTick);
     }
 
     private updateHealthBars(state: Readonly<GameState>): void {

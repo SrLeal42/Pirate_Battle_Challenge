@@ -24,8 +24,14 @@ export const TILE_ASSETS: Record<string, string> = {
 // Ship assets
 export const SHIP_ASSETS = {
     player: 'ship_1',
+    player_damage_1: 'ship_7',
+    player_damage_2: 'ship_13',
     chaser: 'ship_5',
+    chaser_damage_1: 'ship_11',
+    chaser_damage_2: 'ship_17',
     shooter: 'ship_2',
+    shooter_damage_1: 'ship_8',
+    shooter_damage_2: 'ship_14',
 };
 
 // Effect assets
