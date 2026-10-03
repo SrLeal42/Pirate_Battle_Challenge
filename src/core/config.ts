@@ -67,7 +67,7 @@ export const GAME_CONFIG: GameConfig = {
   shooterCooldown: 2000,
   shooterAimTolerance: 0.2, // rads
 
-  enemyHitboxWidth: 72,
-  enemyHitboxHeight: 36,
+  enemyHitboxWidth: 75,
+  enemyHitboxHeight: 46,
 
 } as const;

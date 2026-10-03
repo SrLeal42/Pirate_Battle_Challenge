@@ -56,7 +56,7 @@ export class GameRuntime {
             await app.init({
                 width: GAME_CONFIG.arenaWidth,
                 height: GAME_CONFIG.arenaHeight,
-                backgroundColor: 0x1a6ea0,
+                backgroundAlpha: 0,
                 antialias: true,
                 resolution: Math.min(window.devicePixelRatio, 2),
                 autoDensity: true,

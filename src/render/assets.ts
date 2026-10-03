@@ -8,23 +8,23 @@ const PARTS_PATH = '/assets/png/default/ship_parts/';
 
 // Tile mapping: TileType → tile PNG filename
 export const TILE_ASSETS: Record<string, string> = {
-    water: 'tile_87',         // small water (plain blue)
+    //    water: 'tile_73',
     island_nw: 'tile_1',
     island_n: 'tile_2',
     island_ne: 'tile_3',
-    island_center: 'tile_4',
-    island_w: 'tile_15',      // best guess for west border
-    island_e: 'tile_16',      // best guess for east border
+    island_center: 'tile_18',
+    island_w: 'tile_17',
+    island_e: 'tile_19',
     island_sw: 'tile_33',
     island_s: 'tile_34',
-    island_se: 'tile_35',     // best guess for SE corner
+    island_se: 'tile_35',
 };
 
 // Ship assets
 export const SHIP_ASSETS = {
     player: 'ship_1',
-    chaser: 'ship_7',
-    shooter: 'ship_13',
+    chaser: 'ship_5',
+    shooter: 'ship_2',
 };
 
 // Effect assets

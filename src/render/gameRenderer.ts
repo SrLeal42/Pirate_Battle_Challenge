@@ -26,7 +26,7 @@ export class GameRenderer {
 
     private arenaMap: ArenaMap;
     private debugGraphics: Graphics | null = null;
-    private showDebug = true;
+    private showDebug = false;
 
     constructor(app: Application, arenaMap: ArenaMap) {
         this.app = app;
