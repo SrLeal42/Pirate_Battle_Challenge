@@ -9,8 +9,19 @@ export const STORAGE_KEYS = {
   sessionTime: 'pirate_sessionTime',
   spawnInterval: 'pirate_spawnInterval',
   mockDb: 'pirate_mock_db',
+  pendingMatches: 'pirate_pending_matches',
+  lastResult: 'pirate_last_result',
+  mockSettings: 'pirate_mock_settings',
+  mockCounters: 'pirate_mock_counters',
 } as const;
 
+
+export const API_CONFIG = {
+  timeoutMs: 5000,
+  submitRetries: 3,
+  retryBaseDelayMs: 1000,  // 1s, 2s, 4s
+  retryMaxDelayMs: 8000,
+} as const;
 
 export const GAME_CONFIG: GameConfig = {
   // Arena

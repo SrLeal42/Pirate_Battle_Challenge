@@ -15,3 +15,15 @@ export interface PaginatedResponse<T> {
     pageSize: number;
     total: number;
 }
+
+
+export type EndReason = MatchRecord['endReason'];
+
+/** Raw outcome emitted by the runtime; converted into a MatchRecord. */
+export interface MatchResult {
+    score: number;
+    durationMs: number;
+    endReason: EndReason;
+    sessionTime: number;
+    spawnInterval: number;
+}

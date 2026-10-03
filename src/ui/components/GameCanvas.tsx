@@ -2,6 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import { GameRuntime } from '../../runtime/gameRuntime';
 import { useGameStore, RuntimeStateEnum } from '../../stores/gameStore';
 
+import { completeMatch } from '../../features/matches/matchService';
+
 import { StartScreen } from './StartScreen';
 import { HUD } from './HUD';
 import { GameOverScreen } from './GameOverScreen';
@@ -24,6 +26,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = () => {
         if (!containerRef.current) return;
 
         const runtime = new GameRuntime(containerRef.current);
+        runtime.onMatchEnd = completeMatch;
         runtimeRef.current = runtime;
 
         runtime.init().catch(console.error);

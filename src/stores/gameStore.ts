@@ -3,6 +3,9 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { STORAGE_KEYS, GAME_CONFIG } from '../core/config';
 
+import { lastResultStorage } from '../features/matches/storage';
+import type { MatchRecord } from '../features/matches/types';
+
 export const RuntimeStateEnum = {
     Idle: 'idle',
     Loading: 'loading',
@@ -27,6 +30,7 @@ export interface GameStoreState {
     endReason: 'time_up' | 'player_died' | null;
     loadProgress: number;
     errorMessage: string | null;
+    lastMatch: MatchRecord | null;
 }
 
 let localPlayerId = localStorage.getItem(STORAGE_KEYS.playerId);
@@ -47,4 +51,5 @@ export const useGameStore = create<GameStoreState>(() => ({
     endReason: null,
     loadProgress: 0,
     errorMessage: null,
+    lastMatch: lastResultStorage.load(),
 }));

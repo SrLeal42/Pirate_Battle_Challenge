@@ -2,6 +2,17 @@ import type { MatchRecord, PaginatedResponse } from '../features/matches/types';
 import { RNG } from '../core/rng';
 import { STORAGE_KEYS } from '../core/config';
 
+const FIXTURE_EPOCH = Date.UTC(2026, 0, 1); // fixed for reproducible fixtures
+
+function hashString(value: string): number {
+    let hash = 0;
+    for (let i = 0; i < value.length; i++) {
+        hash = (hash << 5) - hash + value.charCodeAt(i);
+        hash |= 0;
+    }
+    return Math.abs(hash) || 1;
+}
+
 function getDb(): MatchRecord[] {
     try {
         const data = localStorage.getItem(STORAGE_KEYS.mockDb);
@@ -41,7 +52,7 @@ function getFixtures(configKey: string): MatchRecord[] {
             id: `fixture-${i}`,
             playerId: `npc-${i}`,
             playerName: `${fName} ${lName}`,
-            createdAt: new Date(Date.now() - rng.random() * 10000000000).toISOString(),
+            createdAt: new Date(FIXTURE_EPOCH - rng.random() * 10_000_000_000).toISOString(),
             score: Math.floor(rng.random() * maxScore),
             durationMs: Math.floor(rng.random() * maxTime * 1000),
             endReason: rng.random() > 0.5 ? 'time_up' : 'player_died',
@@ -52,21 +63,38 @@ function getFixtures(configKey: string): MatchRecord[] {
     return fixtures;
 }
 
+function getHistoryFixtures(playerId: string, count: number): MatchRecord[] {
+    if (count <= 0) return [];
+
+    const rng = new RNG(hashString(playerId));
+
+    return Array.from({ length: count }, (_, i): MatchRecord => ({
+        id: `history-fixture-${i}`,
+        playerId,
+        playerName: 'Captain',
+        createdAt: new Date(FIXTURE_EPOCH - i * 3_600_000).toISOString(),
+        score: rng.rangeInt(0, 40),
+        durationMs: rng.rangeInt(20, 180) * 1000,
+        endReason: rng.random() > 0.5 ? 'time_up' : 'player_died',
+        configKey: '120-3',
+    }));
+
+}
+
+
 export const db = {
-    addMatch: (record: MatchRecord): MatchRecord => {
+    /** Idempotent by id: resubmissions return the stored record. */
+    addMatch: (record: MatchRecord): { record: MatchRecord; created: boolean } => {
         const records = getDb();
-
-        const exists = records.find(r => r.id === record.id);
-        if (exists) return exists;
-
+        const existing = records.find((r) => r.id === record.id);
+        if (existing) return { record: existing, created: false };
         records.push(record);
         saveDb(records);
-        return record;
+        return { record, created: true };
     },
 
-    getHistory: (playerId: string, page: number, pageSize: number): PaginatedResponse<MatchRecord> => {
-        const records = getDb()
-            .filter(r => r.playerId === playerId)
+    getHistory: (playerId: string, page: number, pageSize: number, extraFixtures = 0): PaginatedResponse<MatchRecord> => {
+        const records = [...getDb().filter((r) => r.playerId === playerId), ...getHistoryFixtures(playerId, extraFixtures)]
             .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
         const total = records.length;

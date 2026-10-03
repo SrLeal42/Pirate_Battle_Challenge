@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './StartScreen.module.css';
 
 import { useGameStore } from '../../stores/gameStore';
@@ -7,7 +7,8 @@ import { STORAGE_KEYS } from '../../core/config';
 import { OptionsScreen } from './OptionsScreen';
 import { LeaderboardScreen } from './LeaderboardScreen';
 
-
+import { usePendingMatches } from '../../features/matches/hooks';
+import { pendingQueue } from '../../features/matches/storage';
 
 export const MenuViewEnum = {
     Main: 'main',
@@ -26,6 +27,12 @@ interface StartScreenProps {
 export const StartScreen: React.FC<StartScreenProps> = ({ onStart }) => {
     const [username, setUsername] = useState(() => localStorage.getItem(STORAGE_KEYS.playerName) ?? '');
     const [view, setView] = useState<MenuView>(MenuViewEnum.Main);
+
+    const pending = usePendingMatches();
+
+    useEffect(() => {
+        pendingQueue.requestSync(); // retry when returning to the menu
+    }, []);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -94,6 +101,17 @@ export const StartScreen: React.FC<StartScreenProps> = ({ onStart }) => {
                             History
                         </button>
                     </div>
+
+                    {pending.length > 0 && (
+                        <div className={styles.pendingNotice} role="status">
+                            <span>
+                                {pending.length} match{pending.length > 1 ? 'es' : ''} waiting to sync
+                            </span>
+                            <button type="button" className={styles.smallButton} onClick={pendingQueue.requestSync}>
+                                Retry
+                            </button>
+                        </div>
+                    )}
 
                 </div>
             )}

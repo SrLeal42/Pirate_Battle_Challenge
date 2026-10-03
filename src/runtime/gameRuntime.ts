@@ -1,12 +1,26 @@
 import { Application } from 'pixi.js';
+
 import { Simulation } from '../core/simulation';
 import { GAME_CONFIG } from '../core/config';
 import { createDefaultArena, type ArenaMap } from '../core/arena';
+import type { GameState } from '../core/types';
+
 import { GameRenderer } from '../render/gameRenderer';
 import { loadGameAssets } from '../render/assets';
+
 import { InputHandler } from '../input/inputHandler';
+
 import { useGameStore, RuntimeStateEnum, type RuntimeState } from '../stores/gameStore';
-import type { GameState } from '../core/types';
+
+import type { MatchResult } from '../features/matches/types';
+
+
+
+interface MatchSettings {
+    sessionTime: number;
+    spawnInterval: number;
+}
+
 
 const STEP_MS = 1000 / 60; // Fixed 60Hz
 const MAX_DELTA = 100;      // Clamp to prevent spiral of death
@@ -24,6 +38,11 @@ export class GameRuntime {
     private disposables: (() => void)[] = [];
 
     private container: HTMLElement;
+
+    /** Fired once when a match finishes (not on quit/abandon). */
+    public onMatchEnd: ((result: MatchResult) => void) | null = null;
+    private settings: MatchSettings | null = null;
+
 
     constructor(container: HTMLElement) {
         this.container = container;
@@ -104,6 +123,7 @@ export class GameRuntime {
 
         const sessionTime = sessionTimeSec ?? GAME_CONFIG.defaultSessionTime;
         const spawnInterval = spawnIntervalSec ?? GAME_CONFIG.defaultSpawnInterval;
+        this.settings = { sessionTime, spawnInterval }; // snapshot reused by restart()
 
         this.simulation = new Simulation(
             GAME_CONFIG,
@@ -147,11 +167,14 @@ export class GameRuntime {
     }
 
     restart(): void {
+        if (!this.settings) return;
+        const { sessionTime, spawnInterval } = this.settings;
+
         this.app?.ticker.remove(this.gameLoop);
         this.renderer?.destroy();
         this.renderer = null;
         this.simulation = null;
-        this.start();
+        this.start(sessionTime, spawnInterval);
     }
 
     quitToMenu(): void {
@@ -200,13 +223,31 @@ export class GameRuntime {
         this.syncToStore(gameState);
 
         // Check game over
-        if (gameState.isGameOver) {
-            this.input.disable();
-            this.app.ticker.remove(this.gameLoop);
-            this.setState(RuntimeStateEnum.Ended);
-            useGameStore.setState({ endReason: gameState.endReason });
-        }
+        if (gameState.isGameOver) this.endMatch(gameState);
     };
+
+
+    private endMatch(state: Readonly<GameState>): void {
+        this.input.disable();
+        this.app?.ticker.remove(this.gameLoop);
+
+        const endReason = state.endReason ?? 'player_died';
+        const timeRemaining = Math.max(0, state.timeRemaining);
+
+        // Final sync: the throttled sync may have skipped the last <100ms
+        useGameStore.setState({ score: state.score, timeRemaining, endReason });
+        if (this.settings) {
+            this.onMatchEnd?.({
+                score: state.score,
+                durationMs: this.settings.sessionTime * 1000 - timeRemaining,
+                endReason,
+                ...this.settings,
+            });
+        }
+
+        // Must run after onMatchEnd so the result screen mounts with the record ready
+        this.setState(RuntimeStateEnum.Ended);
+    }
 
     private syncToStore(state: Readonly<GameState>): void {
         const store = useGameStore.getState();

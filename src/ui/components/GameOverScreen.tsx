@@ -1,8 +1,9 @@
-import React, { useEffect, useRef } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import React from 'react';
 import { useGameStore } from '../../stores/gameStore';
-import { useSubmitMatch } from '../../features/matches/hooks';
-import type { MatchRecord } from '../../features/matches/types';
+import { useMatchSyncStatus, type MatchSyncStatus } from '../../features/matches/hooks';
+import { pendingQueue } from '../../features/matches/storage';
+import { API_CONFIG } from '../../core/config';
+import type { EndReason } from '../../features/matches/types';
 import styles from './GameOverScreen.module.css';
 
 interface GameOverScreenProps {
@@ -10,39 +11,38 @@ interface GameOverScreenProps {
     onQuit: () => void;
 }
 
+const END_REASON_LABEL: Record<EndReason, string> = {
+    time_up: 'Time is up',
+    player_died: 'Ship destroyed',
+};
+
+const formatDuration = (ms: number): string => {
+    const total = Math.round(ms / 1000);
+    return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;
+};
+
+function syncMessage(status: MatchSyncStatus): string {
+    switch (status.kind) {
+        case 'saving':
+            return status.retry > 0
+                ? `Saving your score... (retry ${status.retry}/${API_CONFIG.submitRetries})`
+                : 'Saving your score...';
+        case 'saved':
+            return 'Score saved to Leaderboard!';
+        case 'pending':
+            return `Couldn't save your score (${status.lastError ?? 'unknown error'}). It's stored locally and will be sent automatically.`;
+        case 'idle':
+            return '';
+    }
+}
+
 export const GameOverScreen: React.FC<GameOverScreenProps> = ({ onRestart, onQuit }) => {
-    const score = useGameStore(s => s.score);
-    const endReason = useGameStore(s => s.endReason);
+    const lastMatch = useGameStore((s) => s.lastMatch);
+    const sync = useMatchSyncStatus(lastMatch?.id ?? null);
 
-    const { mutate, status } = useSubmitMatch();
+    if (!lastMatch) return null;
 
-    const recordRef = useRef<MatchRecord | null>(null);
-
-    useEffect(() => {
-        if (!recordRef.current) {
-            const state = useGameStore.getState();
-
-            const configKey = `${state.sessionTime}-${state.spawnInterval}`;
-            const durationMs = (state.sessionTime * 1000) - state.timeRemaining;
-
-            const record: MatchRecord = {
-                id: uuidv4(),
-                playerId: state.playerId,
-                playerName: state.username || 'Player',
-                createdAt: new Date().toISOString(),
-                score: state.score,
-                durationMs: durationMs,
-                endReason: state.endReason || 'player_died',
-                configKey: configKey
-            };
-
-            recordRef.current = record;
-
-            mutate(record);
-        }
-    }, [mutate]);
-
-    const isVictory = endReason === 'time_up';
+    const isVictory = lastMatch.endReason === 'time_up';
     const title = isVictory ? 'Victory!' : 'Game Over';
     const subtitle = isVictory ? 'You survived the challenge!' : 'Your ship was destroyed!';
     const scoreClass = isVictory ? styles.scoreVictory : styles.scoreDefeat;
@@ -55,24 +55,28 @@ export const GameOverScreen: React.FC<GameOverScreenProps> = ({ onRestart, onQui
 
                 <div className={styles.scoreWrapper}>
                     <span className={styles.scoreLabel}>Final Score</span>
-                    <span className={`${styles.scoreValue} ${scoreClass}`}>
-                        {score}
-                    </span>
+                    <span className={`${styles.scoreValue} ${scoreClass}`}>{lastMatch.score}</span>
                 </div>
 
-                <div className={styles.statusMessage}>
-                    {status === 'pending' && 'Saving your score...'}
-                    {status === 'success' && 'Score saved to Leaderboard!'}
-                    {status === 'error' && 'Failed to save score (Will retry later).'}
+                <dl className={styles.details}>
+                    <dt>Time played</dt>
+                    <dd>{formatDuration(lastMatch.durationMs)}</dd>
+                    <dt>Reason</dt>
+                    <dd>{END_REASON_LABEL[lastMatch.endReason]}</dd>
+                </dl>
+
+                <div className={styles.statusMessage} role="status" aria-live="polite">
+                    {syncMessage(sync)}
                 </div>
 
                 <div className={styles.buttonGroup}>
-                    <button className={styles.button} onClick={onRestart}>
-                        Play Again
-                    </button>
-                    <button className={styles.secondaryButton} onClick={onQuit}>
-                        Main Menu
-                    </button>
+                    <button className={styles.button} onClick={onRestart}>Play Again</button>
+                    {sync.kind === 'pending' && (
+                        <button className={styles.secondaryButton} onClick={pendingQueue.requestSync}>
+                            Retry Save
+                        </button>
+                    )}
+                    <button className={styles.secondaryButton} onClick={onQuit}>Main Menu</button>
                 </div>
 
             </div>
