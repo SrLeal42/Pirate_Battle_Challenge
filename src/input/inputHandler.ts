@@ -25,6 +25,7 @@ export class InputHandler {
     private active = false;
     private onKeyDown: (e: KeyboardEvent) => void;
     private onKeyUp: (e: KeyboardEvent) => void;
+    private onTouchInput: (e: Event) => void;
 
     public onPauseToggle?: () => void;
 
@@ -52,8 +53,18 @@ export class InputHandler {
             }
         };
 
+        this.onTouchInput = (e: Event) => {
+            if (!this.active) return;
+            const customEvent = e as CustomEvent<{ action: keyof InputState, state: boolean }>;
+            const { action, state } = customEvent.detail;
+            if (action in this.state) {
+                this.state[action] = state;
+            }
+        };
+
         window.addEventListener('keydown', this.onKeyDown);
         window.addEventListener('keyup', this.onKeyUp);
+        window.addEventListener('touchInput', this.onTouchInput);
     }
 
     enable(): void { this.active = true; }
@@ -75,6 +86,7 @@ export class InputHandler {
     destroy(): void {
         window.removeEventListener('keydown', this.onKeyDown);
         window.removeEventListener('keyup', this.onKeyUp);
+        window.removeEventListener('touchInput', this.onTouchInput);
         this.reset();
     }
 

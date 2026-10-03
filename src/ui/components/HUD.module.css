@@ -77,3 +77,151 @@
     font-family: 'Inter', system-ui, sans-serif;
     text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
 }
+
+
+.pauseIcon {
+    width: 24px;
+    height: 24px;
+    pointer-events: none;
+}
+
+.pauseContainer {
+    position: absolute;
+    top: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: auto;
+}
+
+.pauseButton {
+    background-image: url('/assets/png/default/ui/controls/button_round_normal.png');
+    background-size: 100% 100%;
+    background-color: transparent;
+    border: none;
+    width: 60px;
+    height: 60px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pauseButton:active {
+    background-image: url('/assets/png/default/ui/controls/button_round_pressed.png');
+}
+
+.touchControls {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 2rem;
+    z-index: 10;
+}
+
+.leftControls,
+.rightControls {
+    pointer-events: auto;
+    display: grid;
+    gap: 1rem;
+}
+
+.leftControls {
+    grid-template-columns: 60px 60px 60px;
+    grid-template-areas:
+        ". up ."
+        "left . right";
+}
+
+.rightControls {
+    grid-template-columns: 60px 60px 60px;
+    grid-template-areas:
+        ". front ."
+        "left . right";
+}
+
+.touchButton {
+    background-image: url('/assets/png/default/ui/controls/button_round_normal.png');
+    background-size: 100% 100%;
+    background-color: transparent;
+    border: none;
+    width: 60px;
+    height: 60px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+}
+
+.touchButton:active {
+    background-image: url('/assets/png/default/ui/controls/button_round_pressed.png');
+    transform: translateY(2px);
+}
+
+.touchIcon {
+    width: 28px;
+    height: 28px;
+    pointer-events: none;
+}
+
+@media screen and (hover: hover) and (pointer: fine) {
+    .touchControls {
+        display: none;
+    }
+}
+
+
+@media screen and (max-width: 850px),
+screen and (max-height: 500px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .healthWrapper {
+        transform: scale(0.65);
+        transform-origin: top left;
+    }
+
+    .statsWrapper {
+        transform: scale(0.65);
+        transform-origin: top right;
+    }
+
+    .pauseButton {
+        width: 45px;
+        height: 45px;
+    }
+
+    .pauseIcon {
+        width: 18px;
+        height: 18px;
+    }
+
+    .touchButton {
+        width: 50px;
+        height: 50px;
+    }
+
+    .touchIcon {
+        width: 22px;
+        height: 22px;
+    }
+
+    .leftControls,
+    .rightControls {
+        gap: 0.5rem;
+    }
+
+    .leftControls {
+        grid-template-columns: 50px 50px 50px;
+    }
+
+    .rightControls {
+        grid-template-columns: 50px 50px 50px;
+    }
+}
