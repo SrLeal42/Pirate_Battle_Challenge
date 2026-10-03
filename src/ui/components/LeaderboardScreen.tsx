@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useLeaderboard, useMatchHistory } from '../../features/matches/hooks';
 import { useGameStore } from '../../stores/gameStore';
+
+import { useDialog } from '../hooks/useDialog';
+
 import styles from './LeaderboardScreen.module.css';
 
 interface LeaderboardScreenProps {
@@ -27,6 +30,8 @@ export const LeaderboardScreen: React.FC<LeaderboardScreenProps> = ({ initialTab
     const configKey = `${sessionTime}-${spawnInterval}`;
     const playerId = useGameStore(s => s.playerId);
 
+    const dialogRef = useDialog(true, onClose);
+
     const { data: rankingData, isLoading: loadingRanking } = useLeaderboard(configKey, page);
     const { data: historyData, isLoading: loadingHistory } = useMatchHistory(playerId, page);
 
@@ -43,7 +48,14 @@ export const LeaderboardScreen: React.FC<LeaderboardScreenProps> = ({ initialTab
     };
 
     return (
-        <div className={`${styles.card} responsive-card`}>
+        <div
+            className={`${styles.card} responsive-card`}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="leaderboard-title"
+            ref={dialogRef}
+            tabIndex={-1}
+        >
             <h1 className={styles.title}>{activeTab === 'ranking' ? 'Leaderboard' : 'Match History'}</h1>
 
             <div className={styles.tabButtons}>

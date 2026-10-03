@@ -63,57 +63,75 @@ export class GameRuntime {
 
     async init(): Promise<void> {
         if (this.initPromise) return this.initPromise;
-        this.initPromise = this._init();
-        return this.initPromise;
+
+        const attempt = this._init();
+        this.initPromise = attempt;
+
+        await attempt;
+
+        // _init handles errors in-state; release the lock so retry() can run again
+        if (this.initPromise === attempt && useGameStore.getState().runtimeState === RuntimeStateEnum.Error) {
+            this.initPromise = null;
+        }
     }
 
     private async _init(): Promise<void> {
+
         this.setState(RuntimeStateEnum.Loading);
+        useGameStore.setState({ loadProgress: 0, errorMessage: null });
 
         try {
-            const app = new Application();
-            await app.init({
-                width: GAME_CONFIG.arenaWidth,
-                height: GAME_CONFIG.arenaHeight,
-                backgroundAlpha: 0,
-                antialias: true,
-                resolution: Math.min(window.devicePixelRatio, 2),
-                autoDensity: true,
-            });
 
-            // Strict Mode: if destroyed during async init, cleanup and bail
-            if (this.destroyed) {
-                app.destroy(true);
-                return;
-            }
+            if (!this.app) await this.createApp();
 
-            this.app = app;
-            this.container.appendChild(app.canvas);
-            this.disposables.push(() => {
-                app.canvas.parentElement?.removeChild(app.canvas);
-                app.destroy(true);
-            });
+            if (this.destroyed) return;
 
-            this.setupResize();
-            this.setupPauseListeners();
-
-            // Load assets with progress
             await loadGameAssets((progress) => {
-                useGameStore.setState({ loadProgress: progress });
+                if (!this.destroyed) useGameStore.setState({ loadProgress: progress });
             });
 
             if (this.destroyed) return;
 
             this.setState(RuntimeStateEnum.Ready);
         } catch (err) {
-            if (!this.destroyed) {
-                this.setState(RuntimeStateEnum.Error);
-                useGameStore.setState({
-                    errorMessage: err instanceof Error ? err.message : 'Failed to load',
-                });
-            }
-            throw err;
+            this.initPromise = null; // allow retry()
+            if (this.destroyed) return;
+            useGameStore.setState({
+                runtimeState: RuntimeStateEnum.Error,
+                errorMessage: err instanceof Error ? err.message : 'Failed to load game assets',
+            });
         }
+    }
+
+    /** Re-runs initialization after a failure, reusing the Pixi app when it exists. */
+    retry(): Promise<void> {
+        if (useGameStore.getState().runtimeState !== RuntimeStateEnum.Error) return Promise.resolve();
+        return this.init();
+    }
+
+    private async createApp(): Promise<void> {
+        const app = new Application();
+        await app.init({
+            width: GAME_CONFIG.arenaWidth,
+            height: GAME_CONFIG.arenaHeight,
+            backgroundAlpha: 0,
+            antialias: true,
+            resolution: Math.min(window.devicePixelRatio, 2),
+            autoDensity: true,
+        });
+        // Strict Mode: destroyed during async init
+        if (this.destroyed) {
+            app.destroy(true);
+            return;
+        }
+        this.app = app;
+        this.container.appendChild(app.canvas);
+        this.disposables.push(() => {
+            app.canvas.parentElement?.removeChild(app.canvas);
+            app.destroy(true);
+        });
+        this.setupResize();
+        this.setupPauseListeners();
     }
 
     // --- Game lifecycle ---

@@ -8,6 +8,8 @@ import { StartScreen } from './StartScreen';
 import { HUD } from './HUD';
 import { GameOverScreen } from './GameOverScreen';
 import { PauseScreen } from './PauseScreen';
+import { LoadingScreen } from './LoadingScreen';
+import { GameAnnouncer } from './GameAnnouncer';
 
 import styles from './GameCanvas.module.css';
 
@@ -22,6 +24,11 @@ export const GameCanvas: React.FC<GameCanvasProps> = () => {
 
     const runtimeState = useGameStore((state) => state.runtimeState);
 
+    const isBooting = runtimeState === RuntimeStateEnum.Idle
+        || runtimeState === RuntimeStateEnum.Loading
+        || runtimeState === RuntimeStateEnum.Error;
+
+
     useEffect(() => {
         if (!containerRef.current) return;
 
@@ -29,7 +36,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = () => {
         runtime.onMatchEnd = completeMatch;
         runtimeRef.current = runtime;
 
-        runtime.init().catch(console.error);
+        void runtime.init();
 
         return () => {
             runtime.destroy();
@@ -59,7 +66,11 @@ export const GameCanvas: React.FC<GameCanvasProps> = () => {
                 />
             )}
 
-            {runtimeState === RuntimeStateEnum.Playing && <HUD />}
+            {isBooting && <LoadingScreen onRetry={() => void runtimeRef.current?.retry()} />}
+
+            {runtimeState === RuntimeStateEnum.Playing && (
+                <HUD onPause={() => runtimeRef.current?.pause()} />
+            )}
 
             {runtimeState === RuntimeStateEnum.Ended && (
                 <GameOverScreen
@@ -74,6 +85,8 @@ export const GameCanvas: React.FC<GameCanvasProps> = () => {
                     onQuit={() => runtimeRef.current?.quitToMenu()}
                 />
             )}
+
+            <GameAnnouncer />
 
         </div>
     );

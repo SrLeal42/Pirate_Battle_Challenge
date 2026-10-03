@@ -1,0 +1,112 @@
+.card {
+    background-image: url('/assets/png/default/ui/menu/panel_menu.png');
+    background-size: 100% 100%;
+    width: 540px;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 3rem 3.5rem;
+    box-sizing: border-box;
+}
+
+.title {
+    margin: -10px 0 0;
+    color: #fde047;
+    font-size: 2.5rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    text-shadow: 3px 3px 0 #000;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #f8fafc;
+    font-size: 0.95rem;
+}
+
+.table th,
+.table td {
+    padding: 0.4rem 0.5rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.table thead th {
+    color: #fde047;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.table tbody th {
+    font-weight: 700;
+}
+
+.key {
+    display: inline-block;
+    min-width: 1.8em;
+    margin-right: 0.3rem;
+    padding: 0.15rem 0.45rem;
+    border: 1px solid rgba(253, 224, 71, 0.5);
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.45);
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.6);
+    color: #fff;
+    font: 700 0.85rem/1.2 'Inter', system-ui, sans-serif;
+    text-align: center;
+}
+
+.icon {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    vertical-align: middle;
+}
+
+.hint {
+    margin: 0;
+    color: #cbd5e1;
+    font-size: 0.9rem;
+    text-align: center;
+    text-shadow: 1px 1px 0 #000;
+}
+
+.closeButton {
+    background: url('/assets/png/default/ui/menu/button_primary_normal.png') center / 100% 100% no-repeat transparent;
+    border: none;
+    width: 220px;
+    height: 66px;
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+}
+
+.closeButton:active {
+    transform: translateY(2px);
+}
+
+@media (max-height: 500px) {
+    .card {
+        gap: 0.6rem;
+        padding: 1.5rem 2rem;
+    }
+
+    .title {
+        font-size: 1.6rem;
+    }
+
+    .table th,
+    .table td {
+        padding: 0.2rem 0.4rem;
+    }
+
+    .closeButton {
+        height: 50px;
+    }
+}

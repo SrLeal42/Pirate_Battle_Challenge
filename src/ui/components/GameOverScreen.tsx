@@ -1,9 +1,13 @@
 import React from 'react';
+
 import { useGameStore } from '../../stores/gameStore';
 import { useMatchSyncStatus, type MatchSyncStatus } from '../../features/matches/hooks';
 import { pendingQueue } from '../../features/matches/storage';
 import { API_CONFIG } from '../../core/config';
 import type { EndReason } from '../../features/matches/types';
+
+import { useDialog } from '../hooks/useDialog';
+
 import styles from './GameOverScreen.module.css';
 
 interface GameOverScreenProps {
@@ -40,6 +44,8 @@ export const GameOverScreen: React.FC<GameOverScreenProps> = ({ onRestart, onQui
     const lastMatch = useGameStore((s) => s.lastMatch);
     const sync = useMatchSyncStatus(lastMatch?.id ?? null);
 
+    const dialogRef = useDialog(true);
+
     if (!lastMatch) return null;
 
     const isVictory = lastMatch.endReason === 'time_up';
@@ -49,7 +55,14 @@ export const GameOverScreen: React.FC<GameOverScreenProps> = ({ onRestart, onQui
 
     return (
         <div className={styles.overlay}>
-            <div className={`${styles.card} responsive-card`}>
+            <div
+                className={`${styles.card} responsive-card`}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="gameover-title"
+                ref={dialogRef}
+                tabIndex={-1}
+            >
                 <h1 className={styles.title}>{title}</h1>
                 <span className={styles.subtitle}>{subtitle}</span>
 

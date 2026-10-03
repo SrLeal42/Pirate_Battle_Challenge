@@ -1,0 +1,40 @@
+.bar {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 256 / 48;
+    container-type: inline-size;
+    /* label scales with bar width */
+    user-select: none;
+}
+
+.layer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.fill {
+    transition: clip-path 0.2s ease-out;
+}
+
+.label {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 800;
+    font-size: 6.5cqw;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.85), -1px -1px 0 rgba(0, 0, 0, 0.85);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fill {
+        transition: none;
+    }
+}

@@ -1,0 +1,99 @@
+.overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle at center, rgba(15, 23, 42, 0.55), rgba(2, 6, 23, 0.92));
+}
+
+.card {
+    background-image: url('/assets/png/default/ui/menu/panel_menu.png');
+    background-size: 100% 100%;
+    width: 460px;
+    max-width: 92vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 3rem;
+    box-sizing: border-box;
+}
+
+.title {
+    width: 100%;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.5));
+}
+
+.progress {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.label {
+    color: #fde047;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    text-shadow: 2px 2px 0 #000;
+    animation: pulse 1.4s ease-in-out infinite;
+}
+
+.error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    text-align: center;
+}
+
+.errorTitle {
+    margin: 0;
+    color: #fca5a5;
+    font-size: 1.25rem;
+    font-weight: 900;
+    text-shadow: 2px 2px 0 #000;
+}
+
+.errorDetail {
+    margin: 0;
+    color: #e2e8f0;
+    font-size: 0.9rem;
+}
+
+.retryButton {
+    background: url('/assets/png/default/ui/menu/button_primary_normal.png') center / 100% 100% no-repeat transparent;
+    border: none;
+    width: 220px;
+    height: 70px;
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+}
+
+.retryButton:hover {
+    background-image: url('/assets/png/default/ui/menu/button_primary_hover.png');
+}
+
+.retryButton:active {
+    background-image: url('/assets/png/default/ui/menu/button_primary_pressed.png');
+}
+
+@keyframes pulse {
+    50% {
+        opacity: 0.55;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .label {
+        animation: none;
+    }
+}

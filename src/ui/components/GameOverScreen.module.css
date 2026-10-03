@@ -59,7 +59,7 @@
     font-size: 4.5rem;
     font-weight: 900;
     text-shadow: 3px 3px 0px #000;
-    margin-bottom: 2rem;
+    margin-bottom: 0.5rem;
 }
 
 .button {
@@ -151,4 +151,53 @@
     font-weight: bold;
     color: #fde047;
     text-align: center;
+}
+
+.details {
+    display: grid;
+    grid-template-columns: auto auto;
+    column-gap: 1.5rem;
+    row-gap: 0.4rem;
+    margin: 0;
+    padding: 0.75rem 1.25rem;
+    width: 100%;
+    box-sizing: border-box;
+    background: rgba(0, 0, 0, 0.4);
+    border: 2px solid #334155;
+    border-radius: 8px;
+}
+
+.details dt {
+    color: #fde047;
+    font-size: 0.9rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    text-shadow: 1px 1px 0 #000;
+    align-self: center;
+}
+
+.details dd {
+    margin: 0;
+    color: #f8fafc;
+    font-size: 1.1rem;
+    font-weight: 900;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 1px 1px 0 #000;
+}
+
+@media (max-height: 500px) {
+    .details {
+        padding: 0.4rem 0.9rem;
+        row-gap: 0.2rem;
+    }
+
+    .details dt {
+        font-size: 0.75rem;
+    }
+
+    .details dd {
+        font-size: 0.95rem;
+    }
 }

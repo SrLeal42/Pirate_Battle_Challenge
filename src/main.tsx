@@ -28,7 +28,7 @@ async function enableMocking() {
   exposeMockControls();
 
   return worker.start({
-    //  onUnhandledRequest: 'bypass',
+    onUnhandledFrame: 'bypass',
     quiet: import.meta.env.PROD,
     serviceWorker: { url: `${import.meta.env.BASE_URL}mockServiceWorker.js` },
   });

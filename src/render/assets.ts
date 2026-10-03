@@ -1,10 +1,11 @@
-import { Assets } from 'pixi.js';
+import { Assets, type Texture } from 'pixi.js';
 
 // Asset paths (Vite resolves these imports)
 const TILE_PATH = '/assets/png/default/tiles/';
 const SHIP_PATH = '/assets/png/default/ships/';
 const EFFECT_PATH = '/assets/png/default/effects/';
 const PARTS_PATH = '/assets/png/default/ship_parts/';
+const HUD_PATH = '/assets/png/default/ui/hud/';
 
 // Tile mapping: TileType → tile PNG filename
 export const TILE_ASSETS: Record<string, string> = {
@@ -36,6 +37,17 @@ export const EFFECT_ASSETS = {
     fire2: 'fire_2',
 };
 
+export const HUD_ASSETS = [
+    'health_frame',
+    'health_fill_green',
+    'health_fill_amber',
+    'health_fill_red',
+    'enemy_health_frame',
+    'enemy_health_fill_green',
+    'enemy_health_fill_red',
+] as const;
+
+
 // Build full alias → path map for Pixi Assets
 function buildManifest(): Record<string, string> {
     const entries: Record<string, string> = {};
@@ -58,47 +70,67 @@ function buildManifest(): Record<string, string> {
     // Projectile
     entries['cannon_ball'] = `${PARTS_PATH}cannon_ball.png`;
 
+    // HUD bars (used by in-world health bars)
+    for (const file of HUD_ASSETS) {
+        entries[`hud_${file}`] = `${HUD_PATH}${file}.png`;
+    }
+
     return entries;
 }
 
 const manifest = buildManifest();
+let registered = false;
 let loadPromise: Promise<void> | null = null;
 
-export async function loadGameAssets(
-    onProgress?: (progress: number) => void,
-): Promise<void> {
-    // Deduplicate: reuse existing load if in progress
+// ?assetFail (or =once) fails the first attempt; ?assetFail=always fails every attempt
+type FailMode = 'none' | 'once' | 'always';
+let failMode: FailMode = readFailMode();
+
+function readFailMode(): FailMode {
+    const value = new URLSearchParams(window.location.search).get('assetFail');
+    if (value === null) return 'none';
+    return value === 'always' ? 'always' : 'once';
+}
+
+function consumeSimulatedFailure(): boolean {
+    if (failMode === 'none') return false;
+    if (failMode === 'once') failMode = 'none';
+    return true;
+}
+
+// Registering aliases twice makes Pixi warn, so do it once per page
+function registerManifest(): void {
+    if (registered) return;
+    for (const [alias, src] of Object.entries(manifest)) Assets.add({ alias, src });
+    registered = true;
+}
+
+export function loadGameAssets(onProgress?: (progress: number) => void): Promise<void> {
     if (loadPromise) return loadPromise;
 
-    loadPromise = (async () => {
-        try {
-            // Register all aliases
-            for (const [alias, path] of Object.entries(manifest)) {
-                Assets.add({ alias, src: path });
-            }
+    const attempt = (async () => {
+        registerManifest();
+        if (consumeSimulatedFailure()) throw new Error('Simulated asset failure (assetFail)');
 
-            const aliases = Object.keys(manifest);
-            await Assets.load(aliases, (progress) => {
-                onProgress?.(progress);
-            });
+        const aliases = Object.keys(manifest);
+        await Assets.load(aliases, (progress) => onProgress?.(progress));
 
-            // Validate all loaded
-            for (const alias of aliases) {
-                const tex = Assets.get(alias);
-                if (!tex) throw new Error(`Asset "${alias}" failed to load`);
-            }
-        } catch (err) {
-            // Reset promise so retry is possible
-            loadPromise = null;
-            throw err;
+        for (const alias of aliases) {
+            if (!Assets.get(alias)) throw new Error(`Asset "${alias}" failed to load`);
         }
     })();
 
-    return loadPromise;
+    loadPromise = attempt;
+    // Clear only after assignment, so sync throws can't leave a stale rejected promise
+    attempt.catch(() => {
+        if (loadPromise === attempt) loadPromise = null;
+    });
+
+    return attempt;
 }
 
-export function getTexture(alias: string) {
-    return Assets.get(alias);
+export function getTexture(alias: string): Texture {
+    return Assets.get<Texture>(alias);
 }
 
 export function resetLoadPromise(): void {

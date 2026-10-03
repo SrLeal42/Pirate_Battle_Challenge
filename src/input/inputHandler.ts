@@ -1,16 +1,5 @@
 import type { InputState } from '../core/types';
-
-const KEY_MAP: Record<string, keyof InputState> = {
-    'KeyW': 'thrust',
-    'ArrowUp': 'thrust',
-    'KeyA': 'turnLeft',
-    'ArrowLeft': 'turnLeft',
-    'KeyD': 'turnRight',
-    'ArrowRight': 'turnRight',
-    'Space': 'fireFront',
-    'KeyQ': 'fireLeft',
-    'KeyE': 'fireRight',
-};
+import { KEY_TO_ACTION, TOUCH_INPUT_EVENT, isPauseKey, type TouchInputDetail } from './controls';
 
 export class InputHandler {
     private state: InputState = {
@@ -31,15 +20,14 @@ export class InputHandler {
 
     constructor() {
         this.onKeyDown = (e: KeyboardEvent) => {
-
-            if (e.code === 'Escape') {
-                if (this.onPauseToggle) this.onPauseToggle();
+            if (isPauseKey(e.code)) {
+                if (!e.repeat) this.onPauseToggle?.();
                 return;
             }
 
             if (!this.active) return;
 
-            const action = KEY_MAP[e.code];
+            const action = KEY_TO_ACTION.get(e.code);
             if (action) {
                 e.preventDefault();
                 this.state[action] = true;
@@ -47,24 +35,19 @@ export class InputHandler {
         };
 
         this.onKeyUp = (e: KeyboardEvent) => {
-            const action = KEY_MAP[e.code];
-            if (action) {
-                this.state[action] = false;
-            }
+            const action = KEY_TO_ACTION.get(e.code);
+            if (action) this.state[action] = false;
         };
 
         this.onTouchInput = (e: Event) => {
             if (!this.active) return;
-            const customEvent = e as CustomEvent<{ action: keyof InputState, state: boolean }>;
-            const { action, state } = customEvent.detail;
-            if (action in this.state) {
-                this.state[action] = state;
-            }
+            const { action, state } = (e as CustomEvent<TouchInputDetail>).detail;
+            if (action in this.state) this.state[action] = state;
         };
 
         window.addEventListener('keydown', this.onKeyDown);
         window.addEventListener('keyup', this.onKeyUp);
-        window.addEventListener('touchInput', this.onTouchInput);
+        window.addEventListener(TOUCH_INPUT_EVENT, this.onTouchInput);
     }
 
     enable(): void { this.active = true; }
@@ -86,7 +69,7 @@ export class InputHandler {
     destroy(): void {
         window.removeEventListener('keydown', this.onKeyDown);
         window.removeEventListener('keyup', this.onKeyUp);
-        window.removeEventListener('touchInput', this.onTouchInput);
+        window.removeEventListener(TOUCH_INPUT_EVENT, this.onTouchInput);
         this.reset();
     }
 

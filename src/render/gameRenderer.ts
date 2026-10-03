@@ -1,6 +1,4 @@
-import {
-    Application, Container, Sprite, Graphics
-} from 'pixi.js';
+import { Application, Container, Sprite, Graphics } from 'pixi.js';
 
 import type { GameState } from '../core/types';
 import type { GameEvent } from '../core/types';
@@ -10,7 +8,13 @@ import { GAME_CONFIG } from '../core/config';
 import { createOBB } from '../core/geometry';
 import { getTexture } from './assets';
 
+import { HealthBar, PLAYER_HEALTH_SKIN, ENEMY_HEALTH_SKIN } from './healthBar';
+
 const ROTATION_OFFSET = -Math.PI / 2; // Sprites point down, our 0 = -X
+
+const PLAYER_BAR = { width: 90, offsetY: 50 } as const;
+const ENEMY_BAR = { width: 64, offsetY: 45 } as const;
+
 
 export class GameRenderer {
     private app: Application;
@@ -22,7 +26,10 @@ export class GameRenderer {
     private playerSprite!: Sprite;
     private enemySprites: Map<string, Sprite> = new Map();
     private projectileSprites: Map<string, Sprite> = new Map();
-    private healthBars: Map<string, Graphics> = new Map();
+    private barContainer!: Container;
+    private healthBars: Map<string, HealthBar> = new Map();
+    private playerHealthBar!: HealthBar;
+
 
     private arenaMap: ArenaMap;
     private debugGraphics: Graphics | null = null;
@@ -38,14 +45,16 @@ export class GameRenderer {
         // Layer order: arena (tiles) → entities (ships, projectiles) → effects
         this.arenaContainer = new Container();
         this.entityContainer = new Container();
+        this.barContainer = new Container();
         this.effectContainer = new Container();
 
-        this.app.stage.addChild(this.arenaContainer);
-        this.app.stage.addChild(this.entityContainer);
-        this.app.stage.addChild(this.effectContainer);
+        this.app.stage.addChild(this.arenaContainer, this.entityContainer, this.barContainer, this.effectContainer);
 
         this.buildArena();
         this.createPlayerSprite();
+
+        this.playerHealthBar = new HealthBar(PLAYER_HEALTH_SKIN, PLAYER_BAR.width);
+        this.barContainer.addChild(this.playerHealthBar);
     }
 
     private buildArena(): void {
@@ -149,45 +158,27 @@ export class GameRenderer {
     }
 
     private updateHealthBars(state: Readonly<GameState>): void {
+        const p = state.player;
 
-        // Enemy health bars
+        this.playerHealthBar.visible = !p.isDead;
+        this.playerHealthBar.position.set(p.position.x, p.position.y - PLAYER_BAR.offsetY);
+        this.playerHealthBar.setRatio(p.health / GAME_CONFIG.playerMaxHealth);
+
         for (const enemy of state.enemies) {
             if (enemy.isDead) continue;
-            const maxHp = enemy.type === 'chaser'
-                ? GAME_CONFIG.chaserHealth
-                : GAME_CONFIG.shooterHealth;
-            this.drawHealthBar(
-                enemy.id,
-                enemy.position.x,
-                enemy.position.y - 45,
-                enemy.health / maxHp,
-                40,
-            );
+
+            let bar = this.healthBars.get(enemy.id);
+            if (!bar) {
+                bar = new HealthBar(ENEMY_HEALTH_SKIN, ENEMY_BAR.width);
+                this.barContainer.addChild(bar);
+                this.healthBars.set(enemy.id, bar);
+            }
+
+            const maxHp = enemy.type === 'chaser' ? GAME_CONFIG.chaserHealth : GAME_CONFIG.shooterHealth;
+
+            bar.position.set(enemy.position.x, enemy.position.y - ENEMY_BAR.offsetY);
+            bar.setRatio(enemy.health / maxHp);
         }
-
-    }
-
-    private drawHealthBar(
-        id: string, x: number, y: number, ratio: number, width: number,
-    ): void {
-        let bar = this.healthBars.get(id);
-        if (!bar) {
-            bar = new Graphics();
-            this.effectContainer.addChild(bar);
-            this.healthBars.set(id, bar);
-        }
-
-        const height = 6;
-        const clampedRatio = Math.max(0, Math.min(1, ratio));
-
-        bar.clear();
-        // Background
-        bar.rect(x - width / 2, y, width, height);
-        bar.fill({ color: 0x333333, alpha: 0.7 });
-        // Fill
-        const color = clampedRatio > 0.5 ? 0x44cc44 : clampedRatio > 0.25 ? 0xccaa00 : 0xcc3333;
-        bar.rect(x - width / 2, y, width * clampedRatio, height);
-        bar.fill({ color });
     }
 
     // Handle events for visual effects
@@ -296,6 +287,7 @@ export class GameRenderer {
         this.arenaContainer.destroy({ children: true });
         this.entityContainer.destroy({ children: true });
         this.effectContainer.destroy({ children: true });
+        this.barContainer.destroy({ children: true });
     }
 
 }

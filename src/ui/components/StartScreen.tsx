@@ -6,6 +6,7 @@ import { STORAGE_KEYS } from '../../core/config';
 
 import { OptionsScreen } from './OptionsScreen';
 import { LeaderboardScreen } from './LeaderboardScreen';
+import { ControlsGuide } from './ControlsGuide';
 
 import { usePendingMatches } from '../../features/matches/hooks';
 import { pendingQueue } from '../../features/matches/storage';
@@ -13,9 +14,11 @@ import { pendingQueue } from '../../features/matches/storage';
 export const MenuViewEnum = {
     Main: 'main',
     Options: 'options',
+    Controls: 'controls',
     Ranking: 'ranking',
     History: 'history',
 } as const;
+
 
 export type MenuView = typeof MenuViewEnum[keyof typeof MenuViewEnum];
 
@@ -53,6 +56,10 @@ export const StartScreen: React.FC<StartScreenProps> = ({ onStart }) => {
 
             {view === MenuViewEnum.Options && (
                 <OptionsScreen onClose={() => setView(MenuViewEnum.Main)} />
+            )}
+
+            {view === MenuViewEnum.Controls && (
+                <ControlsGuide onClose={() => setView(MenuViewEnum.Main)} />
             )}
 
             {(view === MenuViewEnum.Ranking || view === MenuViewEnum.History) && (
@@ -94,6 +101,9 @@ export const StartScreen: React.FC<StartScreenProps> = ({ onStart }) => {
                     </form>
 
                     <div className={styles.footerButtons}>
+                        <button type="button" className={styles.smallButton} onClick={() => setView(MenuViewEnum.Controls)}>
+                            Controls
+                        </button>
                         <button type="button" className={styles.smallButton} onClick={() => setView(MenuViewEnum.Ranking)}>
                             Ranking
                         </button>
