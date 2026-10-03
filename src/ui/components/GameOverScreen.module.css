@@ -135,3 +135,20 @@
     background-image: url('/assets/png/default/ui/menu/button_secondary_pressed.png');
     transform: translateY(2px);
 }
+
+
+
+.scoreVictory {
+    color: #4ade80;
+}
+
+.scoreDefeat {
+    color: #f87171;
+}
+
+.statusMessage {
+    margin-top: 0.5rem;
+    font-weight: bold;
+    color: #fde047;
+    text-align: center;
+}

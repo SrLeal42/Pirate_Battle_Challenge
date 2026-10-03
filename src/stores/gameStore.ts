@@ -1,4 +1,7 @@
 import { create } from 'zustand';
+import { v4 as uuidv4 } from 'uuid';
+
+import { STORAGE_KEYS, GAME_CONFIG } from '../core/config';
 
 export const RuntimeStateEnum = {
     Idle: 'idle',
@@ -14,6 +17,7 @@ export type RuntimeState = typeof RuntimeStateEnum[keyof typeof RuntimeStateEnum
 
 export interface GameStoreState {
     runtimeState: RuntimeState;
+    playerId: string;
     username: string;
     sessionTime: number;
     spawnInterval: number;
@@ -25,11 +29,18 @@ export interface GameStoreState {
     errorMessage: string | null;
 }
 
+let localPlayerId = localStorage.getItem(STORAGE_KEYS.playerId);
+if (!localPlayerId) {
+    localPlayerId = uuidv4();
+    localStorage.setItem(STORAGE_KEYS.playerId, localPlayerId);
+}
+
 export const useGameStore = create<GameStoreState>(() => ({
-    runtimeState: 'idle',
+    runtimeState: RuntimeStateEnum.Idle,
+    playerId: localPlayerId as string,
     username: '',
-    sessionTime: parseInt(localStorage.getItem('sessionTime') || '120', 10),
-    spawnInterval: parseInt(localStorage.getItem('spawnInterval') || '3', 10),
+    sessionTime: parseInt(localStorage.getItem(STORAGE_KEYS.sessionTime) || String(GAME_CONFIG.defaultSessionTime), 10),
+    spawnInterval: parseInt(localStorage.getItem(STORAGE_KEYS.spawnInterval) || String(GAME_CONFIG.defaultSpawnInterval), 10),
     score: 0,
     timeRemaining: 0,
     playerHealth: 100,

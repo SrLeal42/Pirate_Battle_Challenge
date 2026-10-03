@@ -4,9 +4,11 @@ export const SESSION_STEPS = [60, 90, 120, 150, 180] as const;
 export const SPAWN_STEPS = [1, 2, 3, 5, 7, 10] as const;
 
 export const STORAGE_KEYS = {
+  playerId: 'pirate_playerId',
   playerName: 'pirate_playerName',
   sessionTime: 'pirate_sessionTime',
   spawnInterval: 'pirate_spawnInterval',
+  mockDb: 'pirate_mock_db',
 } as const;
 
 
